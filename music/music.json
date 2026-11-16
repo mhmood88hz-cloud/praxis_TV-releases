@@ -1,0 +1,103 @@
+{
+ "tracks": [
+  {
+   "file": "satie-gymnopedie-1.mp3",
+   "title": "Gymnopédie Nr. 1",
+   "composer": "Erik Satie",
+   "performer": "Robin Alciatore",
+   "license": "Public Domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg",
+   "size": 2938296,
+   "sha256": "5b8e6a14945917cd2aca8b1b0bac87e975aa78ca6a45592b4ccb4cb40be7b35e",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/satie-gymnopedie-1.mp3?sha=5b8e6a14945917cd2aca8b1b0bac87e975aa78ca6a45592b4ccb4cb40be7b35e"
+  },
+  {
+   "file": "satie-gymnopedie-2.mp3",
+   "title": "Gymnopédie Nr. 2",
+   "composer": "Erik Satie",
+   "performer": "Michael Laucke",
+   "license": "Public Domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Satie_Gymnopedie_No_2_performed_by_Michael_Laucke.flac",
+   "size": 2356648,
+   "sha256": "f8705f19afabaac2bd28f28e0e6bc2134feab64a4b2d04e9bfe5fafe7b314258",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/satie-gymnopedie-2.mp3?sha=f8705f19afabaac2bd28f28e0e6bc2134feab64a4b2d04e9bfe5fafe7b314258"
+  },
+  {
+   "file": "satie-gymnopedie-3.mp3",
+   "title": "Gymnopédie Nr. 3",
+   "composer": "Erik Satie",
+   "performer": "Michael Laucke",
+   "license": "Public Domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Satie_Gymnopedie_No_3_performed_by_Michael_Laucke.flac",
+   "size": 1970872,
+   "sha256": "69a06110bd010478095af73f6a5898a275efa20b152c58c06c96157a0620cc6e",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/satie-gymnopedie-3.mp3?sha=69a06110bd010478095af73f6a5898a275efa20b152c58c06c96157a0620cc6e"
+  },
+  {
+   "file": "debussy-clair-de-lune.mp3",
+   "title": "Clair de lune",
+   "composer": "Claude Debussy",
+   "performer": "",
+   "license": "Public Domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Clair_de_lune_(Claude_Debussy)_Suite_bergamasque.ogg",
+   "size": 4866341,
+   "sha256": "a26be16865181332c06f599c02c40af5f44ef7577feca0ac2d6f5072d01914f4",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/debussy-clair-de-lune.mp3?sha=a26be16865181332c06f599c02c40af5f44ef7577feca0ac2d6f5072d01914f4"
+  },
+  {
+   "file": "bach-air.mp3",
+   "title": "Air",
+   "composer": "Johann Sebastian Bach",
+   "performer": "United States Air Force Band",
+   "license": "Public Domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Air_-_Air_Force_Strings_-_United_States_Air_Force_Band.mp3",
+   "size": 2933953,
+   "sha256": "c46636d2eabfb05ef4f194836edb99e1e4cd8181a06e08d3376fbec4372b9c78",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/bach-air.mp3?sha=c46636d2eabfb05ef4f194836edb99e1e4cd8181a06e08d3376fbec4372b9c78"
+  },
+  {
+   "file": "pachelbel-canon.mp3",
+   "title": "Kanon",
+   "composer": "Johann Pachelbel",
+   "performer": "United States Air Force Band",
+   "license": "Public Domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Canon_(2004)_-_Strolling_Strings_-_United_States_Air_Force_Band.mp3",
+   "size": 3662060,
+   "sha256": "752f296ec3d91674f5bdbba77f57951765a3afa2ce1692d305bb65ced4ca584f",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/pachelbel-canon.mp3?sha=752f296ec3d91674f5bdbba77f57951765a3afa2ce1692d305bb65ced4ca584f"
+  },
+  {
+   "file": "schumann-traeumerei.mp3",
+   "title": "Träumerei",
+   "composer": "Robert Schumann",
+   "performer": "Musopen",
+   "license": "Public Domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Robert_Schumann_-_scenes_from_childhood,_op._15_-_vii._dreaming.ogg",
+   "size": 3248839,
+   "sha256": "32646aeabc1f41371c7a85c7754cba14877e98f150687e1ebeb06eb4b5e9c36f",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/schumann-traeumerei.mp3?sha=32646aeabc1f41371c7a85c7754cba14877e98f150687e1ebeb06eb4b5e9c36f"
+  },
+  {
+   "file": "chopin-nocturne-op9-2.mp3",
+   "title": "Nocturne op. 9 Nr. 2",
+   "composer": "Frédéric Chopin",
+   "performer": "Peter Johnston",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Chopin_Nocturne_No._2_in_E_Flat_Major,_Op._9.ogg",
+   "size": 4149123,
+   "sha256": "dcb7c69a0af92652978ff2908f171c202a74f4b206e6196ac55433c62bb44fcb",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/chopin-nocturne-op9-2.mp3?sha=dcb7c69a0af92652978ff2908f171c202a74f4b206e6196ac55433c62bb44fcb"
+  },
+  {
+   "file": "debussy-reverie.mp3",
+   "title": "Rêverie",
+   "composer": "Claude Debussy",
+   "performer": "",
+   "license": "Public Domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Reverie.ogg",
+   "size": 4677842,
+   "sha256": "a89df1eefbf7f3e11c0055585cb069c831a17d8bcc0761d6cc9b8c50ba53824c",
+   "url": "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/music/debussy-reverie.mp3?sha=a89df1eefbf7f3e11c0055585cb069c831a17d8bcc0761d6cc9b8c50ba53824c"
+  }
+ ]
+}
