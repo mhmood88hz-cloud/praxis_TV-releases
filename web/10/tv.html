@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Praxis TV</title>
+<style>
+  :root {
+    --bg: #013a39; --panel: #ffffff; --ink: #3a3736; --muted: #6b6665; --logo-grey: #4f4b4a;
+    --accent: #01aba8; --accent-dark: #015e5c; --accent-light: #e6f7f6; --accent-glow: #80d5d3; --warn: #b91c1c; --warn-bg: #fef2f2; --gold: #b45309;
+  }
+  /* Cairo (Arabic): bundled in the app, see fonts/LICENSE-Cairo.txt. Latin letters fall back to Roboto. */
+  @font-face { font-family: "Cairo"; font-weight: 400; src: url(/fonts/cairo-400.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+  @font-face { font-family: "Cairo"; font-weight: 600; src: url(/fonts/cairo-600.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+  @font-face { font-family: "Cairo"; font-weight: 700; src: url(/fonts/cairo-700.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+  @font-face { font-family: "Cairo"; font-weight: 800 900; src: url(/fonts/cairo-800.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; color: var(--ink);
+    background: var(--bg) radial-gradient(ellipse at 85% -20%, var(--accent-dark), transparent 60%);
+    font-family: "Roboto", "Segoe UI", Arial, sans-serif; cursor: none;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { display: flex; flex-direction: column; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 2.2vh 3vw; color: #fff; }
+  .brand { display: flex; align-items: center; }
+  .brand > div + div { margin-left: 1.4vw; }
+  .logo { width: 9.4vh; height: 9.4vh; border-radius: 2vh; background: #fff; overflow: hidden; flex: none; padding: .7vh;
+    box-shadow: 0 .4vh 1.6vh rgba(0,0,0,.25); }
+  .logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .oldlogo { display: flex;
+    align-items: center; justify-content: center; font-size: 4.4vh; font-weight: 900; color: #fff; }
+  .name { font-size: 4.2vh; font-weight: 800; letter-spacing: .02em; }
+  .sub { font-size: 2.4vh; opacity: .75; margin-top: .3vh; }
+  .clock { text-align: right; }
+  .time { font-size: 6vh; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+  .date { font-size: 2.4vh; opacity: .75; margin-top: .6vh; }
+
+  #alert { display: none; margin: 0 3vw 1.6vh; padding: 1.4vh 2vw; border-radius: 1.4vh; background: var(--warn);
+    color: #fff; font-size: 3vh; font-weight: 800; align-items: center; }
+  #alert span + span { margin-left: 1.2vw; }
+  #alert.on { display: flex; animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { background: #dc2626; } }
+
+  main { flex: 1; position: relative; margin: 0 3vw; }
+  .card { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: var(--panel); border-radius: 2.4vh; overflow: hidden;
+    display: flex; opacity: 0; transform: translateY(2vh); transition: opacity .7s ease, transform .7s ease; }
+  .card.on { opacity: 1; transform: none; }
+  .stripe { width: 1.4vh; flex: none; }
+  .content { flex: 1; padding: 5vh 4vw 4vh; display: flex; flex-direction: column; min-width: 0; overflow: hidden;
+    font-size: 1vh; -webkit-hyphens: auto; hyphens: auto; word-wrap: break-word; overflow-wrap: break-word; }
+  .card.message .content, .card.warning .content { justify-content: center; }
+  .meta { display: flex; align-items: center; flex: none; font-size: 2.6vh; font-weight: 700; color: var(--muted); }
+  .meta > * + * { margin-left: 1.2vw; }
+  /* Right-to-left slides (Arabic): mirrored layout, Cairo font, no hyphenation. */
+  [dir=rtl] { font-family: "Cairo", "Roboto", "Segoe UI", Arial, sans-serif; text-align: right; }
+  [dir=rtl] .content { -webkit-hyphens: none; hyphens: none; }
+  [dir=rtl] .meta > * + * { margin-left: 0; margin-right: 1.2vw; }
+  [dir=rtl] .chip { letter-spacing: 0; font-weight: 700; }
+  [dir=rtl] h1 { font-weight: 800; line-height: 1.35; letter-spacing: 0; }
+  [dir=rtl] .text { font-weight: 600; line-height: 1.7; }
+  [dir=rtl] .extra { font-weight: 700; }
+  [dir=rtl] .qrlabel { font-weight: 700; }
+  [dir=rtl] .machine { font-weight: 600; }
+  .term { unicode-bidi: -webkit-isolate; unicode-bidi: isolate; white-space: nowrap; }
+  .np { text-align: right; font-size: 2vh; opacity: .6; height: 2.6vh; margin-bottom: .6vh; white-space: nowrap; overflow: hidden; }
+  .machine { font-size: 2.1vh; font-weight: 600; opacity: .75; }
+  .chip { padding: .7vh 1.2vw; border-radius: 99vh; color: #fff; font-size: 2.4vh; font-weight: 800; letter-spacing: .03em; }
+  h1 { font-size: 7.4em; line-height: 1.12; font-weight: 900; margin-top: 3.4vh; color: var(--ink); flex: none; }
+  .extra { flex: none; font-size: 3.4em; font-weight: 700; color: var(--warn); margin-top: 1.6vh; }
+  .text { font-size: 3.9em; line-height: 1.42; color: var(--logo-grey); margin-top: 3vh; white-space: pre-line; flex: none; }
+  .side.qronly { width: 24%; }
+  .side { width: 34%; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 4vh 2vw; background: #f1f5f9; }
+  .side > * + * { margin-top: 2vh; }
+  .side img.pic { max-width: 100%; max-height: 52vh; border-radius: 1.6vh; object-fit: cover; }
+  .qr { background: #fff; padding: 1.2vh; border-radius: 1.4vh; box-shadow: 0 .4vh 1.6vh rgba(0,0,0,.08); }
+  .qr img { width: 20vh; height: 20vh; display: block; }
+  .qrlabel { font-size: 2.3vh; font-weight: 700; color: var(--muted); text-align: center; }
+
+  /* practice messages */
+  .card.message { background: linear-gradient(135deg, var(--accent-light), #ffffff 60%); }
+  .card.message .stripe { background: var(--accent); }
+  .card.message h1 { font-size: 8.6em; color: var(--accent-dark); }
+  .card.message .text { font-size: 4.6em; }
+  .card.message.important { background: linear-gradient(135deg, #fffbeb, #ffffff 60%); }
+  .card.message.important .stripe { background: var(--gold); }
+  .card.message.important h1 { color: #78350f; }
+  .card.message .side { background: transparent; width: 42%; }
+  .card.message .side img.pic { max-height: 64vh; }
+  .card.message.imageonly .content { display: none; }
+  .card.message.imageonly .side { width: 100%; padding: 2vh; }
+  .card.message.imageonly .side img.pic { max-height: 100%; height: 100%; object-fit: contain; }
+
+  /* official warnings */
+  .card.warning { background: var(--warn-bg); }
+  .card.warning .stripe { background: var(--warn); }
+  .card.warning h1 { color: var(--warn); }
+
+  footer { padding: 1.6vh 3vw 2.2vh; color: #fff; }
+  .progress { height: .6vh; background: rgba(255,255,255,.15); border-radius: 1vh; overflow: hidden; }
+  .bar { height: 100%; width: 0; background: var(--accent-glow); }
+  .ticker { margin-top: 1.4vh; overflow: hidden; white-space: nowrap; font-size: 3vh; font-weight: 600; opacity: .92; }
+  .ticker span { display: inline-block; padding-left: 100%; animation: tick linear infinite; }
+  @keyframes tick { to { transform: translateX(-100%); } }
+
+  #info { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(2,6,23,.88); color: #fff; display: none;
+    align-items: center; justify-content: center; text-align: center; }
+  #info.on { display: flex; }
+  #info .box { background: #0f172a; border: .3vh solid var(--accent-glow); border-radius: 2.4vh; padding: 5vh 4vw; display: flex; align-items: center; }
+  #info .infoqr { margin-right: 4vw; }
+  #info .infoqr img { width: 34vh; height: 34vh; background: #fff; padding: 1.4vh; border-radius: 1.6vh; display: block; }
+  #info .infoqr p { margin-top: 1.6vh; font-weight: 700; opacity: 1; }
+  #info [lang=ar] { font-family: "Cairo", "Roboto", sans-serif; }
+  #info h2 { font-size: 4.4vh; margin-bottom: 3vh; }
+  #info .big { font-size: 6.4vh; font-weight: 900; color: var(--accent-glow); margin: 1vh 0 3vh; }
+  #info p { font-size: 2.8vh; opacity: .85; }
+  #empty { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 4vh; opacity: .7; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo"><img id="plogo" src="/logo.png" alt=""></div>
+    <div><div class="name" id="pname">Praxis</div><div class="sub" id="psub"></div></div>
+  </div>
+  <div class="clock"><div class="time" id="time">--:--</div><div class="date" id="date"></div></div>
+</header>
+<div id="alert"><span>⚠</span><span id="alertText"></span></div>
+<main id="stage"><div id="empty">Inhalte werden geladen …</div></main>
+<footer>
+  <div class="np" id="nowPlaying"></div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="ticker"><span id="ticker"></span></div>
+</footer>
+<div id="info"><div class="box">
+  <div class="infoqr"><img id="infoQr" alt=""><p>Mit dem Handy scannen<br><span dir="rtl" lang="ar">امسح الرمز بهاتفك</span></p></div>
+  <div class="infotext">
+    <h2>Steuerung der Bildschirm-Infos · <span dir="rtl" lang="ar">لوحة التحكم</span></h2>
+    <p>Im Praxis-WLAN im Browser öffnen:</p>
+    <div class="big" id="infoUrl">…</div>
+    <p>PIN</p>
+    <div class="big" id="infoPin">…</div>
+    <p>OK auf der Fernbedienung schließt dieses Fenster.</p>
+    <p id="infoVer" style="opacity:.45;margin-top:2vh"></p>
+  </div>
+</div></div>
+
+<script>
+// Kept to ES5 so old Fire TV WebViews run it.
+var data = null, slides = [], index = -1, timer = null, paused = false, slideStart = 0, slideMs = 0, tickerText = null;
+var DAYS = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+var MONTHS = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+  return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+function clock() {
+  var d = new Date();
+  $("time").textContent = pad(d.getHours()) + ":" + pad(d.getMinutes());
+  $("date").textContent = DAYS[d.getDay()] + ", " + d.getDate() + ". " + MONTHS[d.getMonth()] + " " + d.getFullYear();
+}
+
+function load() {
+  var x = new XMLHttpRequest();
+  x.open("GET", "/api/playlist?t=" + Date.now());
+  x.onload = function () {
+    if (x.status === 200) try { apply(JSON.parse(x.responseText)); } catch (e) {}
+    if (!slides.length) setTimeout(load, 5000); // right after start-up: try again soon
+  };
+  x.onerror = function () { if (!slides.length) setTimeout(load, 5000); };
+  x.send();
+}
+
+// Practice colour: everything teal on screen is derived from this one value.
+var brand = "#01aba8";
+function mix(hex, other, t) {
+  var a = parseInt(hex.slice(1), 16), b = parseInt(other.slice(1), 16), out = "#";
+  for (var sh = 16; sh >= 0; sh -= 8) {
+    var v = Math.round(((a >> sh) & 255) * (1 - t) + ((b >> sh) & 255) * t);
+    out += (v < 16 ? "0" : "") + v.toString(16);
+  }
+  return out;
+}
+function theme(c) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(c || "") || c === brand) return;
+  brand = c;
+  var r = document.documentElement.style;
+  r.setProperty("--accent", c);
+  r.setProperty("--accent-dark", mix(c, "#000000", 0.45));
+  r.setProperty("--bg", mix(c, "#000000", 0.78));
+  r.setProperty("--accent-light", mix(c, "#ffffff", 0.88));
+  r.setProperty("--accent-glow", mix(c, "#ffffff", 0.45));
+}
+
+var webVersion = null;
+// ---- calm background music: shuffled, played from the stick (/music/…), volume from the board
+var music = { enabled: false, volume: 25, tracks: [] }, audio = null, order = [], pos = -1, musicSig = "";
+function shuffled(n) {
+  var a = [], i, j, t;
+  for (i = 0; i < n; i++) a.push(i);
+  for (i = n - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function playCurrent() {
+  var p = audio.play();
+  if (p && p.catch) p.catch(function () { setTimeout(playCurrent, 5000); });
+}
+function nextTrack() {
+  if (!music.enabled || !music.tracks.length) return;
+  pos++;
+  if (pos >= order.length) { order = shuffled(music.tracks.length); pos = 0; }
+  var t = music.tracks[order[pos]];
+  audio.src = t.url;
+  $("nowPlaying").textContent = "♪ " + t.composer + " – " + t.title;
+  playCurrent();
+}
+function setupMusic(m) {
+  if (!m) return;
+  if (!audio) {
+    audio = new Audio();
+    audio.addEventListener("ended", nextTrack);
+    audio.addEventListener("error", function () { setTimeout(nextTrack, 3000); });
+  }
+  music = m;
+  audio.volume = Math.max(0, Math.min(1, (m.volume || 0) / 100));
+  if (!m.enabled || !m.tracks.length) {
+    if (!audio.paused) audio.pause();
+    $("nowPlaying").textContent = "";
+    return;
+  }
+  var sig = m.tracks.map(function (t) { return t.url; }).join("|");
+  if (sig !== musicSig) { musicSig = sig; order = shuffled(m.tracks.length); pos = -1; nextTrack(); }
+  else if (audio.paused) playCurrent();
+}
+
+function apply(d) {
+  // New screen files arrived from GitHub: load them.
+  if (webVersion !== null && d.web && d.web !== webVersion) { location.reload(); return; }
+  if (d.web) webVersion = d.web;
+  if (d.web) $("infoVer").textContent = "Anzeige-Version " + d.web;
+  setupMusic(d.music);
+  data = d;
+  $("pname").textContent = d.praxisName || "";
+  $("psub").textContent = d.subtitle || "";
+  if (d.logo && $("plogo").getAttribute("src") !== d.logo) $("plogo").setAttribute("src", d.logo);
+  theme(d.brandColor);
+  if (d.ticker !== tickerText) {
+    tickerText = d.ticker;
+    var t = $("ticker");
+    t.textContent = d.ticker || "";
+    t.style.animationDuration = Math.max(20, (d.ticker || "").length / 6) + "s";
+  }
+  var w = d.warnings || [];
+  $("alert").className = w.length ? "on" : "";
+  $("alertText").textContent = w.length ? w.map(function (x) { return x.title; }).join("   ·   ") : "";
+  // Keep showing the current slide; the new list takes effect with the next one.
+  var cur = slides[index];
+  slides = d.slides || [];
+  if (cur) {
+    var same = -1;
+    for (var i = 0; i < slides.length; i++) if (slides[i].id === cur.id) { same = i; break; }
+    index = same;
+  }
+  $("empty").style.display = slides.length ? "none" : "flex";
+  $("empty").textContent = "Noch keine Inhalte – bitte Praxis-Infos im Browser anlegen.";
+  if (!timer && slides.length) next();
+}
+
+// Labels on the card in the slide's language (German unless it is the translated copy).
+var LABELS = {
+  de: { info: "PRAXIS-INFO", important: "WICHTIG", warning: "⚠ AMTLICHE WARNUNG", more: "Mehr lesen:<br>", scan: "Code mit dem Handy scannen", machine: "" },
+  ar: { info: "معلومات العيادة", important: "مهم", warning: "⚠ تحذير رسمي", more: "للمزيد:<br>", scan: "امسح الرمز بهاتفك", machine: "ترجمة آلية" },
+  tr: { info: "MUAYENEHANE BİLGİSİ", important: "ÖNEMLİ", warning: "⚠ RESMİ UYARI", more: "Devamı:<br>", scan: "Kodu telefonla tarayın", machine: "Otomatik çeviri" },
+  en: { info: "PRACTICE INFO", important: "IMPORTANT", warning: "⚠ OFFICIAL WARNING", more: "Read more:<br>", scan: "Scan the code with your phone", machine: "Machine translation" },
+  ru: { info: "ИНФОРМАЦИЯ ПРАКТИКИ", important: "ВАЖНО", warning: "⚠ ОФИЦИАЛЬНОЕ ПРЕДУПРЕЖДЕНИЕ", more: "Подробнее:<br>", scan: "Отсканируйте код телефоном", machine: "Машинный перевод" },
+  uk: { info: "ІНФОРМАЦІЯ ПРАКТИКИ", important: "ВАЖЛИВО", warning: "⚠ ОФІЦІЙНЕ ПОПЕРЕДЖЕННЯ", more: "Детальніше:<br>", scan: "Скануйте код телефоном", machine: "Машинний переклад" },
+  sq: { info: "INFO NGA PRAKTIKA", important: "E RËNDËSISHME", warning: "⚠ PARALAJMËRIM ZYRTAR", more: "Më shumë:<br>", scan: "Skanoni kodin me telefon", machine: "Përkthim automatik" },
+  pl: { info: "INFORMACJA PRAKTYKI", important: "WAŻNE", warning: "⚠ OFICJALNE OSTRZEŻENIE", more: "Więcej:<br>", scan: "Zeskanuj kod telefonem", machine: "Tłumaczenie maszynowe" }
+};
+var RTL = { ar: 1, fa: 1, he: 1, ur: 1 };
+
+// German terms inside Arabic text arrive wrapped in U+2068…U+2069; show them as a left-to-right unit
+// with markup, because older Fire TV WebViews ignore those isolate characters.
+function rich(s) {
+  return esc(s).replace(/⁨([^⁩]*)⁩/g, '<span class="term" dir="ltr">$1</span>');
+}
+
+function render(s) {
+  var L = LABELS[s.lang || "de"] || LABELS.en;
+  var color = s.color || brand;
+  var cls = "card " + s.type + (s.style === "important" ? " important" : "");
+  var hasText = (s.title || s.text);
+  if (s.type === "message" && s.image && !hasText) cls += " imageonly";
+  var side = "";
+  if (s.image) side += '<img class="pic" src="' + esc(s.image) + '" onerror="this.style.display=\'none\'">';
+  if (data.showQr && s.link) side += '<div class="qr"><img src="/qr?d=' + encodeURIComponent(s.link) + '"></div>' +
+    '<div class="qrlabel">' + (s.type === "message" ? "" : L.more) + L.scan + '</div>';
+  var meta = s.type === "message"
+    ? '<span class="chip" style="background:' + (s.style === "important" ? "#b45309" : brand) + '">' +
+      (s.style === "important" ? L.important : L.info) + '</span>'
+    : '<span class="chip" style="background:' + esc(color) + '">' +
+      (s.type === "warning" ? L.warning : esc(s.source)) + '</span>' +
+      (s.type === "warning" ? '<span>' + esc(s.source) + '</span>' : '') +
+      (s.date ? '<span dir="ltr">' + esc(s.date) + '</span>' : '');
+  if (s.machine && L.machine) meta += '<span class="machine">' + L.machine + '</span>';
+  var el = document.createElement("div");
+  el.className = cls + (s.lang ? " lang-" + s.lang : "");
+  if (s.lang) { el.setAttribute("lang", s.lang); el.setAttribute("dir", RTL[s.lang] ? "rtl" : "ltr"); }
+  el.innerHTML = '<div class="stripe" style="background:' + esc(color) + '"></div>' +
+    '<div class="content"><div class="meta">' + meta + '</div>' +
+    '<h1>' + rich(s.title) + '</h1>' +
+    (s.extraTitle ? '<div class="extra">' + esc(s.extraTitle) + '</div>' : '') +
+    (s.text ? '<div class="text">' + rich(s.text) + '</div>' : '') + '</div>' +
+    (side ? '<div class="side' + (s.image ? '' : ' qronly') + '">' + side + '</div>' : '');
+  if (s.type === "message" || s.type === "warning") el.querySelector(".stripe").removeAttribute("style");
+  return el;
+}
+
+function show(i) {
+  if (!slides.length) return;
+  index = (i + slides.length) % slides.length;
+  var s = slides[index];
+  var stage = $("stage"), old = stage.querySelectorAll(".card");
+  var el = render(s);
+  stage.appendChild(el);
+  fit(el.querySelector(".content"));
+  setTimeout(function () { el.className += " on"; }, 30);
+  for (var k = 0; k < old.length; k++) (function (o) {
+    o.className = o.className.replace(" on", "");
+    setTimeout(function () { if (o.parentNode) o.parentNode.removeChild(o); }, 800);
+  })(old[k]);
+  slideMs = (s.seconds || 14) * 1000;
+  slideStart = Date.now();
+  clearTimeout(timer);
+  timer = setTimeout(next, slideMs);
+}
+
+// Shrink the text of a slide until headline and text fit on the card.
+function fit(c) {
+  if (!c) return;
+  var size = 1;
+  c.style.fontSize = "1vh";
+  while (c.scrollHeight > c.clientHeight + 2 && size > 0.5) {
+    size -= 0.05;
+    c.style.fontSize = size + "vh";
+  }
+}
+
+function next() { show(index + 1); }
+function step(d) { paused = false; show(index + d); }
+function togglePause() {
+  paused = !paused;
+  if (paused) clearTimeout(timer); else { slideStart = Date.now(); timer = setTimeout(next, slideMs); }
+}
+
+function progress() {
+  var p = paused || !slideMs ? 0 : Math.min(1, (Date.now() - slideStart) / slideMs);
+  $("bar").style.width = (p * 100) + "%";
+}
+
+function toggleInfo() {
+  var box = $("info");
+  if (box.className === "on") { box.className = ""; return; }
+  var x = new XMLHttpRequest();
+  x.open("GET", "/api/tvinfo");
+  x.onload = function () {
+    try {
+      var d = JSON.parse(x.responseText);
+      $("infoUrl").textContent = d.url; $("infoPin").textContent = d.pin;
+      // Scanning opens the control board already signed in (the PIN is on screen here anyway).
+      $("infoQr").src = "/qr?d=" + encodeURIComponent(d.url + "/#pin=" + d.pin);
+    } catch (e) {}
+    box.className = "on";
+  };
+  x.send();
+}
+
+clock(); setInterval(clock, 5000);
+setInterval(progress, 200);
+load(); setInterval(load, 60000);
+// Show where to control the screen for a moment after start.
+setTimeout(function () { toggleInfo(); setTimeout(function () { $("info").className = ""; }, 25000); }, 1500);
+// A fresh page every 6 hours keeps the old WebView healthy.
+setTimeout(function () { location.reload(); }, 6 * 3600 * 1000);
+</script>
+</body>
+</html>
