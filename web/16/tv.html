@@ -87,6 +87,9 @@
   .card.message.important h1 { color: #78350f; }
   .card.message .side { background: transparent; width: 42%; }
   .card.message .side img.pic { max-height: 64vh; }
+  .card.poster { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 40; border-radius: 0; background: #000; }
+  .card.poster .pbg { position: absolute; top: -5%; right: -5%; bottom: -5%; left: -5%; background-size: cover; background-position: center; -webkit-filter: blur(3vh) brightness(.8); filter: blur(3vh) brightness(.8); }
+  .card.poster .ppic { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
   .card.message.imageonly .content { display: none; }
   .card.message.imageonly .side { width: 100%; padding: 2vh; }
   .card.message.imageonly .side img.pic { max-height: 100%; height: 100%; object-fit: contain; }
@@ -260,7 +263,8 @@ function apply(d) {
   $("alertText").textContent = w.length ? w.map(function (x) { return x.title; }).join("   ·   ") : "";
   // Keep showing the current slide; the new list takes effect with the next one.
   var cur = slides[index];
-  slides = d.slides || [];
+  // A poster is only a picture: the translated copies of it would repeat the same picture, so keep one.
+  slides = (d.slides || []).filter(function (x) { return !(x.style === "poster" && x.lang && x.lang !== "de"); });
   if (cur) {
     var same = -1;
     for (var i = 0; i < slides.length; i++) if (slides[i].id === cur.id) { same = i; break; }
@@ -291,6 +295,14 @@ function rich(s) {
 }
 
 function render(s) {
+  if (s.type === "message" && s.style === "poster" && s.image) {
+    // Poster: the picture alone, over the whole screen (a blurred copy fills the sides of a non-16:9 picture).
+    var p = document.createElement("div");
+    p.className = "card poster";
+    p.innerHTML = '<div class="pbg" style="background-image:url(' + esc(s.image) + ')"></div>' +
+      '<img class="ppic" src="' + esc(s.image) + '">';
+    return p;
+  }
   var L = LABELS[s.lang || "de"] || LABELS.en;
   var color = s.color || brand;
   var cls = "card " + s.type + (s.style === "important" ? " important" : "");

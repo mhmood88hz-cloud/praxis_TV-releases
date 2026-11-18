@@ -301,7 +301,7 @@ de: {
   editTitle: "Praxis-Info bearbeiten", newTitle: "Neue Praxis-Info", mTitle: "Überschrift (groß und kurz)", mText: "Text",
   mImage: "Bild (optional)", mRemoveImage: "Bild entfernen", mLink: "Link als QR-Code (optional, z. B. Online-Terminbuchung)",
   mFrom: "Anzeigen ab", mUntil: "Anzeigen bis", mSeconds: "Sekunden auf dem Bildschirm", mStyle: "Darstellung",
-  styleInfo: "Normal (grün)", styleImportant: "Wichtig (orange)", mStatus: "Status", active: "aktiv", paused: "pausiert",
+  styleInfo: "Normal (grün)", styleImportant: "Wichtig (orange)", stylePoster: "Plakat (Bild über den ganzen Bildschirm)", mStatus: "Status", active: "aktiv", paused: "pausiert",
   save: "Speichern", cancel: "Abbrechen", del: "Löschen", confirmDelete: "Diese Praxis-Info löschen?",
   uploading: "Bild wird hochgeladen …", imageReady: "Bild bereit – jetzt speichern", needContent: "Bitte Überschrift, Text oder Bild angeben",
   modeAuto: "Automatisch", modeApprove: "Erst nach Freigabe", remove: "Entfernen", confirmRemove: "Quelle entfernen?",
@@ -360,7 +360,7 @@ ar: {
   editTitle: "تعديل الإعلان", newTitle: "إعلان جديد", mTitle: "العنوان (كبير وقصير)", mText: "النص",
   mImage: "صورة (اختياري)", mRemoveImage: "حذف الصورة", mLink: "رابط يظهر كرمز QR (اختياري، مثلاً حجز المواعيد أونلاين)",
   mFrom: "يظهر من تاريخ", mUntil: "يظهر حتى تاريخ", mSeconds: "ثواني على الشاشة", mStyle: "الشكل",
-  styleInfo: "عادي (أخضر)", styleImportant: "مهم (برتقالي)", mStatus: "الحالة", active: "فعّال", paused: "متوقف مؤقتاً",
+  styleInfo: "عادي (أخضر)", styleImportant: "مهم (برتقالي)", stylePoster: "ملصق (صورة على كامل الشاشة)", mStatus: "الحالة", active: "فعّال", paused: "متوقف مؤقتاً",
   save: "حفظ", cancel: "إلغاء", del: "حذف", confirmDelete: "حذف هذا الإعلان؟",
   uploading: "جاري رفع الصورة …", imageReady: "الصورة جاهزة – اضغط حفظ الآن", needContent: "اكتب عنواناً أو نصاً أو أضف صورة",
   modeAuto: "تلقائي", modeApprove: "بعد الموافقة", remove: "حذف", confirmRemove: "حذف هذا المصدر؟",
@@ -667,7 +667,8 @@ function editMessage(k) {
     '<div><label>' + t("mUntil") + '</label><input id="m_until" type="date" value="' + esc(m.until) + '"></div>' +
     '<div><label>' + t("mSeconds") + '</label><input id="m_seconds" type="number" min="5" max="120" value="' + m.seconds + '"></div>' +
     '<div><label>' + t("mStyle") + '</label><select id="m_style"><option value="info">' + t("styleInfo") + '</option><option value="important"' +
-    (m.style === "important" ? " selected" : "") + '>' + t("styleImportant") + '</option></select></div>' +
+    (m.style === "important" ? " selected" : "") + '>' + t("styleImportant") + '</option><option value="poster"' +
+    (m.style === "poster" ? " selected" : "") + '>' + t("stylePoster") + '</option></select></div>' +
     '<div><label>' + t("mStatus") + '</label><select id="m_enabled"><option value="true">' + t("active") + '</option><option value="false"' +
     (m.enabled ? "" : " selected") + '>' + t("paused") + '</option></select></div></div>' +
     '<div class="row" style="margin-top:14px"><button class="btn primary" onclick="saveMessage()">' + t("save") + '</button>' +
