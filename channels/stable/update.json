@@ -1,50 +1,50 @@
 {
     "channel":  "stable",
-    "versionCode":  10,
-    "versionName":  "1.10",
-    "apk":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/apk/PraxisTV-10.apk?sha=4067dd3991de05f002e7dd9977df267d47dffe99331eb6dece4f70157ef085fd",
-    "sha256":  "4067dd3991de05f002e7dd9977df267d47dffe99331eb6dece4f70157ef085fd",
+    "versionCode":  11,
+    "versionName":  "1.11",
+    "apk":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/apk/PraxisTV-11.apk?sha=d29e8270185f87c41161295e0acde892534bf9cdb1f4599163daf04ba6e7b4e5",
+    "sha256":  "d29e8270185f87c41161295e0acde892534bf9cdb1f4599163daf04ba6e7b4e5",
     "web":  {
-                "version":  13,
+                "version":  14,
                 "minApp":  7,
                 "files":  [
                               {
                                   "name":  "admin.html",
-                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/13/admin.html?sha=38963737120e9a160f5263510353c8f3b7b23516a41b11d1940bb677bb1669d5",
-                                  "sha256":  "38963737120e9a160f5263510353c8f3b7b23516a41b11d1940bb677bb1669d5"
+                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/14/admin.html?sha=9412789dd03538703e0cee1b49dabf0aeba563eb66dff01e2ad1b7da58b5c408",
+                                  "sha256":  "9412789dd03538703e0cee1b49dabf0aeba563eb66dff01e2ad1b7da58b5c408"
                               },
                               {
                                   "name":  "logo.png",
-                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/13/logo.png?sha=632d352a4ff6408c2be3fdc5cdc846803debf93c4305cfe99e16745977152f66",
+                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/14/logo.png?sha=632d352a4ff6408c2be3fdc5cdc846803debf93c4305cfe99e16745977152f66",
                                   "sha256":  "632d352a4ff6408c2be3fdc5cdc846803debf93c4305cfe99e16745977152f66"
                               },
                               {
                                   "name":  "tv.html",
-                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/13/tv.html?sha=b8e62353a7d1802ea24728f28e3e044318c324ff6fcebffc82c131c325362979",
+                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/14/tv.html?sha=b8e62353a7d1802ea24728f28e3e044318c324ff6fcebffc82c131c325362979",
                                   "sha256":  "b8e62353a7d1802ea24728f28e3e044318c324ff6fcebffc82c131c325362979"
                               },
                               {
                                   "name":  "fonts/cairo-400.woff2",
-                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/13/fonts/cairo-400.woff2?sha=1b36945f5f6a3d1fed3783999b887d0c56cfd66a41a04212a28aa79abbdff0e1",
+                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/14/fonts/cairo-400.woff2?sha=1b36945f5f6a3d1fed3783999b887d0c56cfd66a41a04212a28aa79abbdff0e1",
                                   "sha256":  "1b36945f5f6a3d1fed3783999b887d0c56cfd66a41a04212a28aa79abbdff0e1"
                               },
                               {
                                   "name":  "fonts/cairo-600.woff2",
-                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/13/fonts/cairo-600.woff2?sha=621909d2e4c8720d3af3a74028556956d343baaa5be48c47a0ad406607fc6515",
+                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/14/fonts/cairo-600.woff2?sha=621909d2e4c8720d3af3a74028556956d343baaa5be48c47a0ad406607fc6515",
                                   "sha256":  "621909d2e4c8720d3af3a74028556956d343baaa5be48c47a0ad406607fc6515"
                               },
                               {
                                   "name":  "fonts/cairo-700.woff2",
-                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/13/fonts/cairo-700.woff2?sha=673212b4908a9a6366ad6beb8a8a58c91bc3cb7e6cc4802b315a240c2dd80eb9",
+                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/14/fonts/cairo-700.woff2?sha=673212b4908a9a6366ad6beb8a8a58c91bc3cb7e6cc4802b315a240c2dd80eb9",
                                   "sha256":  "673212b4908a9a6366ad6beb8a8a58c91bc3cb7e6cc4802b315a240c2dd80eb9"
                               },
                               {
                                   "name":  "fonts/cairo-800.woff2",
-                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/13/fonts/cairo-800.woff2?sha=ba5febcd1f64ca49060a110276ea847e43a1d1e9c1ef554edaf65b2c0429194a",
+                                  "url":  "https://raw.githubusercontent.com/mhmood88hz-cloud/praxis_TV-releases/main/web/14/fonts/cairo-800.woff2?sha=ba5febcd1f64ca49060a110276ea847e43a1d1e9c1ef554edaf65b2c0429194a",
                                   "sha256":  "ba5febcd1f64ca49060a110276ea847e43a1d1e9c1ef554edaf65b2c0429194a"
                               }
                           ]
             },
-    "notes":  "Ruhezeit: Bildschirm nachts schliessen (Reserve zum TV-Zeitschalter)",
-    "date":  "2026-11-17 17:42"
+    "notes":  "Fernsteuerung der Praxis-Infos (signierte Befehle ueber ntfy), Schluesselfeld in der Steuerung",
+    "date":  "2026-11-18 13:13"
 }
