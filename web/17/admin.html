@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Praxis TV – Steuerung</title>
+<style>
+  :root { --bg: #f1f5f9; --card: #fff; --ink: #3a3736; --muted: #64748b; --line: #e2e8f0;
+    --accent: #01aba8; --accent-ink: #fff; --warn: #b91c1c; --gold: #b45309; }
+  /* Cairo (Arabic): bundled in the app, see fonts/LICENSE-Cairo.txt. Latin letters fall back to Roboto. */
+  @font-face { font-family: "Cairo"; font-weight: 400; src: url(/fonts/cairo-400.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+  @font-face { font-family: "Cairo"; font-weight: 600; src: url(/fonts/cairo-600.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+  @font-face { font-family: "Cairo"; font-weight: 700; src: url(/fonts/cairo-700.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+  @font-face { font-family: "Cairo"; font-weight: 800 900; src: url(/fonts/cairo-800.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Segoe UI", Roboto, Tahoma, Arial, sans-serif; }
+  html[dir=rtl] body { font-size: 16px; font-family: "Cairo", "Segoe UI", Roboto, Tahoma, Arial, sans-serif; }
+  html[dir=rtl] .btn, html[dir=rtl] nav button, html[dir=rtl] input, html[dir=rtl] textarea, html[dir=rtl] select { font-family: inherit; }
+  [dir=rtl] .ltr, [dir=rtl] code { text-align: left; }
+  header { background: #013a39; color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  header h1 { font-size: 18px; margin: 0; }
+  header .sub { font-size: 13px; opacity: .7; }
+  header .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .lang { display: inline-flex; border: 1px solid rgba(255,255,255,.35); border-radius: 8px; overflow: hidden; }
+  .lang button { border: 0; background: transparent; color: #fff; padding: 7px 11px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .lang button.on { background: #80d5d3; color: #013a39; }
+  #login .lang { border-color: var(--line); margin-bottom: 8px; }
+  #login .lang button { color: var(--ink); }
+  nav { display: flex; gap: 4px; padding: 0 16px; background: #fff; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  nav button { border: 0; background: none; padding: 14px 12px; font: inherit; font-weight: 600; color: var(--muted);
+    border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; }
+  nav button.on { color: var(--accent); border-color: var(--accent); }
+  nav .count { background: var(--gold); color: #fff; border-radius: 99px; padding: 1px 7px; font-size: 12px; margin-inline-start: 4px; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  section { display: none; } section.on { display: block; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .grow { flex: 1; min-width: 0; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .chip { display: inline-block; color: #fff; border-radius: 99px; padding: 2px 9px; font-size: 12px; font-weight: 700; }
+  .badge { display: inline-block; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 700; }
+  .b-on { background: #dcfce7; color: #166534; } .b-wait { background: #fef3c7; color: #92400e; }
+  .b-off { background: #f1f5f9; color: #64748b; } .b-pin { background: #dbeafe; color: #1e40af; }
+  .item h3 { margin: 6px 0 4px; font-size: 16px; }
+  .item p { margin: 0 0 8px; color: #334155; font-size: 14px; }
+  .item h3, .item p, .de-text { direction: ltr; text-align: left; unicode-bidi: plaintext; }
+  .term { unicode-bidi: -webkit-isolate; unicode-bidi: isolate; }
+  .item .tr { color: var(--accent); font-weight: 600; margin: 0 0 6px; }
+  .item.warning { border-inline-start: 5px solid var(--warn); }
+  .btn { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 8px; padding: 7px 12px;
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn:hover { border-color: #94a3b8; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.danger { color: var(--warn); }
+  .btn.ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
+  .filters { margin-bottom: 12px; }
+  .filters .btn.on { background: #0f172a; color: #fff; border-color: #0f172a; }
+  label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin: 10px 0 4px; }
+  input[type=text], input[type=number], input[type=date], input[type=password], textarea, select {
+    width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; background: #fff; color: var(--ink); }
+  textarea { min-height: 110px; resize: vertical; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 14px; }
+  @media (max-width: 640px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+  .thumb { width: 120px; height: 68px; object-fit: cover; border-radius: 6px; background: #e2e8f0; }
+  .hint { background: #ecfeff; border: 1px solid #a5f3fc; color: #155e75; border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
+  .hint a { color: inherit; font-weight: 700; }
+  #login { max-width: 360px; margin: 12vh auto; text-align: center; }
+  #login input { font-size: 28px; text-align: center; letter-spacing: .3em; margin: 12px 0; direction: ltr; }
+  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #0f172a; color: #fff;
+    padding: 10px 16px; border-radius: 10px; display: none; z-index: 9; }
+  .empty { text-align: center; color: var(--muted); padding: 30px; }
+  .switch { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; margin: 0; }
+  code, .ltr { direction: ltr; unicode-bidi: embed; }
+  code { font-size: 12px; word-break: break-all; color: var(--muted); }
+  /* help */
+  #helpBody h2 { font-size: 20px; margin: 4px 0 10px; }
+  #helpBody h3 { font-size: 17px; margin: 0 0 8px; color: var(--accent); }
+  #helpBody p, #helpBody li { font-size: 15px; color: #1e293b; }
+  #helpBody ul, #helpBody ol { margin: 6px 0; padding-inline-start: 22px; }
+  #helpBody li { margin: 4px 0; }
+  #helpBody .k { display: inline-block; background: #f1f5f9; border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; font-weight: 700; }
+  .toc { display: flex; flex-wrap: wrap; gap: 6px; }
+  .toc a { background: #fff; border: 1px solid var(--line); border-radius: 99px; padding: 4px 10px; font-size: 13px; color: var(--ink); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div id="login" class="card" style="display:none">
+  <div class="lang"><button data-lang="de">Deutsch</button><button data-lang="ar">العربية</button></div>
+  <h2>Praxis TV</h2>
+  <p class="muted" data-t="loginText"></p>
+  <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8">
+  <button class="btn primary" onclick="login()" data-t="loginBtn"></button>
+  <p id="loginErr" class="muted" style="color:var(--warn)"></p>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <div><h1 id="hName">Praxis TV</h1><div class="sub" data-t="appSub"></div></div>
+    <div class="actions">
+      <div class="lang"><button data-lang="de">DE</button><button data-lang="ar">ع</button></div>
+      <button class="btn ghost" onclick="refresh()" data-t="refreshBtn"></button>
+      <a class="btn ghost" href="/tv" target="_blank" style="text-decoration:none" data-t="previewBtn"></a>
+      <button class="btn ghost" onclick="logout()" data-t="logoutBtn"></button>
+    </div>
+  </header>
+  <nav>
+    <button data-tab="news" class="on"><span data-t="tabNews"></span> <span id="waitCount" class="count" style="display:none"></span></button>
+    <button data-tab="messages" data-t="tabMessages"></button>
+    <button data-tab="sources" data-t="tabSources"></button>
+    <button data-tab="settings" data-t="tabSettings"></button>
+    <button data-tab="help" data-t="tabHelp"></button>
+  </nav>
+  <main>
+    <section id="news" class="on">
+      <div class="hint" data-t="hintNews"></div>
+      <div class="filters row">
+        <button class="btn on" data-f="wait" data-t="fWait"></button>
+        <button class="btn" data-f="on" data-t="fOn"></button>
+        <button class="btn" data-f="all" data-t="fAll"></button>
+      </div>
+      <div id="newsList"></div>
+    </section>
+
+    <section id="messages">
+      <div class="hint" data-t="hintMessages"></div>
+      <div class="row" style="margin-bottom:12px"><button class="btn primary" onclick="editMessage(-1)" data-t="newMessage"></button></div>
+      <div id="editor" class="card" style="display:none"></div>
+      <div id="msgList"></div>
+    </section>
+
+    <section id="sources">
+      <div class="hint" data-t="hintSources"></div>
+      <div id="srcList"></div>
+      <div class="card">
+        <h3 style="margin-top:0" data-t="addSourceTitle"></h3>
+        <div class="grid2">
+          <div><label data-t="lName"></label><input id="nsName" type="text" dir="auto" placeholder="Gesundheitsamt Gifhorn"></div>
+          <div><label data-t="lType"></label><select id="nsType"><option value="rss" data-t="typeRss"></option><option value="html" data-t="typeHtml"></option></select></div>
+        </div>
+        <label data-t="lUrl"></label><input id="nsUrl" type="text" placeholder="https://…" class="ltr">
+        <label data-t="lPattern"></label>
+        <input id="nsPattern" type="text" placeholder="/pressemitteilungen/" class="ltr">
+        <div class="row" style="margin-top:12px">
+          <button class="btn" onclick="testSource()" data-t="testBtn"></button>
+          <button class="btn primary" onclick="addSource()" data-t="addBtn"></button>
+          <span id="nsResult" class="muted grow"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings">
+      <div class="card">
+        <h3 style="margin-top:0" data-t="sScreen"></h3>
+        <div class="grid2">
+          <div><label data-t="lPraxisName"></label><input id="s_praxisName" type="text" dir="auto"></div>
+          <div><label data-t="lSubtitle"></label><input id="s_subtitle" type="text" dir="auto"></div>
+        </div>
+        <div class="grid2">
+          <div><label data-t="lLogo"></label><div class="row">
+            <img id="logoPrev" src="/logo.png" alt="" style="width:76px;height:76px;padding:4px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:12px">
+            <input id="logoFile" type="file" accept="image/*" onchange="uploadLogo()" style="max-width:220px">
+            <button class="btn danger" onclick="resetLogo()" data-t="logoReset"></button></div>
+            <input id="s_logo" type="hidden"><div class="muted" data-t="logoHint"></div></div>
+          <div><label data-t="lBrand"></label><div class="row">
+            <input id="s_brandColor" type="color" style="width:76px;height:44px;padding:2px;border:1px solid #cbd5e1;border-radius:8px">
+            <button class="btn" onclick="$('s_brandColor').value='#01aba8'" data-t="brandReset"></button></div>
+            <div class="muted" data-t="brandHint"></div></div>
+        </div>
+        <label data-t="lTicker"></label><textarea id="s_ticker" dir="auto" style="min-height:70px"></textarea>
+        <div class="grid3">
+          <div><label data-t="lSlideSeconds"></label><input id="s_slideSeconds" type="number" min="5" max="120"></div>
+          <div><label data-t="lMessageEvery"></label><input id="s_messageEvery" type="number" min="1" max="20"></div>
+          <div><label data-t="lPerSource"></label><input id="s_perSource" type="number" min="1" max="30"></div>
+          <div><label data-t="lMaxAge"></label><input id="s_maxAgeDays" type="number" min="1" max="365"></div>
+          <div><label data-t="lShowQr"></label><select id="s_showQr"><option value="true" data-t="show"></option><option value="false" data-t="dontShow"></option></select></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0" data-t="sMusic"></h3>
+        <div class="grid2">
+          <div><label data-t="lMusic"></label><select id="s_musicEnabled"><option value="true" data-t="on"></option><option value="false" data-t="off"></option></select></div>
+          <div><label><span data-t="lVolume"></span>: <b id="volValue" class="ltr"></b></label>
+            <input id="s_musicVolume" type="range" min="0" max="100" step="5" style="width:100%" oninput="$('volValue').textContent=this.value+'%'"></div>
+        </div>
+        <div class="muted" id="musicStatus" style="margin-top:8px"></div>
+        <ul id="musicList" class="muted" style="margin:6px 0 0;padding-inline-start:20px"></ul>
+        <div class="muted" data-t="musicHint"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0" data-t="sLang"></h3>
+        <div class="grid2">
+          <div><label data-t="lSecondLang"></label><input id="s_secondLang" type="hidden">
+            <div id="langBoxes" class="row" style="gap:6px 14px"></div><div class="muted" data-t="secondLangHint"></div></div>
+          <div><label data-t="lDeepl"></label><input id="s_deeplKey" type="text" class="ltr" placeholder="xxxxxxxx-xxxx-…:fx"><div class="muted" data-t="deeplHint"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0" data-t="sWarnings"></h3>
+        <div class="grid2">
+          <div><label data-t="lArs"></label><input id="s_ars" type="text" class="ltr"><div class="muted" data-t="arsHint"></div></div>
+          <div><label data-t="lArea"></label><input id="s_areaFilter" type="text" dir="auto"><div class="muted" data-t="areaHint"></div></div>
+          <div><label data-t="lSeverity"></label><select id="s_minSeverity">
+            <option value="Minor" data-t="sevMinor"></option><option value="Moderate" data-t="sevModerate"></option>
+            <option value="Severe" data-t="sevSevere"></option><option value="Extreme" data-t="sevExtreme"></option></select></div>
+          <div><label data-t="lExtraLang"></label><select id="s_extraLang">
+            <option value="" data-t="langNone"></option><option value="en" data-t="langEn"></option><option value="ar" data-t="langAr"></option>
+            <option value="tr" data-t="langTr"></option><option value="ru" data-t="langRu"></option><option value="uk" data-t="langUk"></option>
+            <option value="pl" data-t="langPl"></option><option value="fr" data-t="langFr"></option><option value="es" data-t="langEs"></option></select></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0" data-t="sDevice"></h3>
+        <div class="grid2">
+          <div><label data-t="lAutostart"></label><select id="s_autostart">
+            <option value="true" data-t="autoYes"></option><option value="false" data-t="autoNo"></option></select></div>
+          <div></div>
+          <div><label data-t="lSleep"></label><select id="s_sleepEnabled">
+            <option value="false" data-t="off"></option><option value="true" data-t="on"></option></select></div>
+          <div class="muted" data-t="sleepHint" style="align-self:end"></div>
+          <div><label data-t="lSleepAt"></label><input id="s_sleepAt" type="time" class="ltr"></div>
+          <div><label data-t="lWakeAt"></label><input id="s_wakeAt" type="time" class="ltr"></div>
+          <div><label data-t="lRemoteKey"></label><input id="s_remoteKey" type="password" class="ltr" autocomplete="off">
+            <div class="muted" data-t="remoteKeyHint"></div></div>
+          <div></div>
+          <div><label data-t="lPin"></label><input id="s_pin" type="text" inputmode="numeric" class="ltr"></div>
+          <div><label data-t="lAddress"></label><div id="address" class="ltr" style="padding:9px 0;font-weight:700"></div></div>
+        </div>
+        <label data-t="lVersion"></label>
+        <div class="row"><span id="appVersion" class="ltr" style="font-weight:700"></span>
+          <span id="appUpdate" class="muted grow"></span>
+          <button class="btn" onclick="checkUpdate()" data-t="updateBtn"></button></div>
+        <div id="adbHint" class="muted" style="display:none" data-t="adbHint"></div>
+        <div class="grid2"><div><label data-t="lChannel"></label><select id="s_channel">
+          <option value="stable">stable</option><option value="beta">beta</option></select>
+          <div class="muted" data-t="channelHint"></div></div>
+          <div><label data-t="lBackup"></label><button class="btn" onclick="backup()" data-t="backupBtn"></button>
+          <div class="muted" data-t="backupHint"></div></div></div>
+      </div>
+      <button class="btn primary" onclick="saveSettings()" data-t="saveSettings"></button>
+    </section>
+
+    <section id="help"><div id="helpBody"></div></section>
+  </main>
+</div>
+<div id="toast"></div>
+
+<script>
+// ---------------------------------------------------------------- texts
+var T = {
+de: {
+  loginText: "PIN eingeben – oder einfach den QR-Code auf dem Fernseher scannen. Code und PIN erscheinen, wenn Sie dort <b>OK</b> auf der Fernbedienung drücken.",
+  loginBtn: "Anmelden", appSub: "Steuerung des Wartezimmer-Bildschirms",
+  refreshBtn: "↻ Quellen jetzt abrufen", previewBtn: "Vorschau ↗", logoutBtn: "Abmelden",
+  tabNews: "Meldungen", tabMessages: "Praxis-Infos", tabSources: "Quellen", tabSettings: "Einstellungen", tabHelp: "❓ Hilfe",
+  hintNews: "Neue Meldungen aus Quellen mit „Erst nach Freigabe“ erscheinen erst nach <b>Anzeigen</b>. <b>Anheften</b> zeigt eine Meldung bevorzugt und unabhängig vom Alter. <b>Ausblenden</b> entfernt sie vom Bildschirm. <a href='#' onclick='openHelp(\"h-news\");return false'>Mehr in der Hilfe</a>",
+  fWait: "Wartet auf Freigabe", fOn: "Auf dem Bildschirm", fAll: "Alle",
+  hintMessages: "Eigene Hinweise für das Wartezimmer – z. B. Urlaub, Impfaktionen, Öffnungszeiten. Ein Bild (Plakat, Foto) kann allein oder mit Text gezeigt werden. <a href='#' onclick='openHelp(\"h-messages\");return false'>Mehr in der Hilfe</a>",
+  newMessage: "+ Neue Praxis-Info",
+  hintSources: "<b>Automatisch</b>: neue Meldungen erscheinen sofort. <b>Erst nach Freigabe</b>: Sie entscheiden unter „Meldungen“. Warnungen kommen aus dem amtlichen Warnsystem NINA (inkl. Deutscher Wetterdienst, z. B. Hitze) für Ihren Landkreis. <a href='#' onclick='openHelp(\"h-sources\");return false'>Mehr in der Hilfe</a>",
+  addSourceTitle: "Eigene Quelle hinzufügen", lName: "Name", lType: "Art", typeRss: "RSS-/Atom-Feed", typeHtml: "Webseite (Links lesen)",
+  lUrl: "Adresse (URL)", lPattern: "Nur bei „Webseite“: Muster, das die Link-Adressen enthalten müssen (regulärer Ausdruck)",
+  testBtn: "Testen", addBtn: "Hinzufügen",
+  lBackup: "Sicherung", backupBtn: "Sicherung speichern", backupDone: "Sicherung gespeichert",
+  backupHint: "Einstellungen, Praxis-Infos und Quellen als Datei (ohne PIN und Bilder). Wiederherstellen: install-firetv.ps1 <IP> -Restore <Datei>.",
+  lChannel: "Update-Kanal", channelHint: "stable = Praxis (geprüfte Versionen). beta = Test-Stick, bekommt neue Versionen zuerst.",
+  lVersion: "App-Version und Updates", updateBtn: "Jetzt nach Update suchen", updateStarted: "Suche nach Update … Status in 15 Sekunden",
+  adbHint: "Automatische Updates sind noch nicht freigegeben: Auf dem Fernseher erscheint „USB-Debugging zulassen?“ – „Immer zulassen“ wählen und OK drücken, dann erneut suchen.",
+  sMusic: "Hintergrundmusik", lMusic: "Ruhige Musik im Wartezimmer", on: "an", off: "aus", lVolume: "Lautstärke",
+  musicHint: "Gemeinfreie bzw. CC0-Aufnahmen (keine GEMA-pflichtige Musik). Die Lautstärke wirkt zusätzlich zur Lautstärke des Fernsehers.",
+  sLang: "Weitere Sprachen", lSecondLang: "Jede Karte danach noch einmal auf",
+  secondLangHint: "Erst Deutsch, direkt danach dieselbe Karte in jeder gewählten Sprache. Jede Sprache verlängert den Durchlauf.", langSq: "Albanisch",
+  lDeepl: "DeepL-Schlüssel (optional)", deeplHint: "Leer = kostenlose Google-Übersetzung. Mit DeepL-Schlüssel (gratis bei deepl.com) zuverlässiger.",
+  mArTitle: "Übersetzung (Arabisch / zweite Sprache)", mAuto: "↻ Automatisch übersetzen",
+  mArHint: "Leer lassen = wird automatisch übersetzt. Eigene Übersetzung hier eintragen oder korrigieren.", translating: "Wird übersetzt …",
+  lLogo: "Logo der Praxis", logoReset: "Standard-Logo", logoHint: "PNG mit transparentem Hintergrund oder SVG ist am schönsten. Danach „Einstellungen speichern“.",
+  logoReady: "Logo bereit – jetzt „Einstellungen speichern“", lBrand: "Praxisfarbe", brandReset: "Logo-Türkis (Standard)",
+  brandHint: "Hintergrund, Balken und Praxis-Infos werden aus dieser Farbe abgeleitet.",
+  sScreen: "Bildschirm", lPraxisName: "Name der Praxis", lSubtitle: "Zweite Zeile (Adresse, Fachrichtung …)", lTicker: "Laufband unten",
+  lSlideSeconds: "Sekunden pro Meldung", lMessageEvery: "Praxis-Info nach jeder … Meldung", lPerSource: "Höchstens … Meldungen je Quelle",
+  lMaxAge: "Automatische Meldungen nicht älter als … Tage", lShowQr: "QR-Code zur Quelle", show: "anzeigen", dontShow: "nicht anzeigen",
+  sWarnings: "Amtliche Warnungen (NINA / DWD)", lArs: "Regionalschlüssel des Landkreises", arsHint: "Landkreis Gifhorn: 031510000000",
+  lArea: "Wetterwarnungen nur für Ort", areaHint: "leer = ganzer Landkreis", lSeverity: "Ab Warnstufe",
+  sevMinor: "Gering (alle)", sevModerate: "Mittel", sevSevere: "Hoch", sevExtreme: "Extrem",
+  lExtraLang: "Überschrift zusätzlich in", langNone: "nur Deutsch", langEn: "Englisch", langAr: "Arabisch", langTr: "Türkisch",
+  langRu: "Russisch", langUk: "Ukrainisch", langPl: "Polnisch", langFr: "Französisch", langEs: "Spanisch",
+  lRemoteKey: "Schlüssel für Fernsteuerung der Infos", remoteKeyHint: "Einmal eintragen (16+ Zeichen). Damit können Praxis-Infos von außerhalb geändert werden.",
+  lSleep: "Ruhezeit (Bildschirm nachts schließen)", lSleepAt: "Bildschirm schließen um", lWakeAt: "Bildschirm öffnen um",
+  sleepHint: "Reserve zum Zeitschalter des Fernsehers: der Stick darf dann schlafen und schaltet den Fernseher über HDMI-CEC aus.",
+  sDevice: "Gerät und Zugang", lAutostart: "Nach dem Einschalten automatisch starten", autoYes: "ja (Praxis-Fernseher)", autoNo: "nein",
+  lPin: "PIN für diese Seite (4–8 Ziffern)", lAddress: "Adresse dieser Seite", saveSettings: "Einstellungen speichern",
+  // dynamic
+  saved: "Gespeichert", savedTv: "Gespeichert – der Fernseher übernimmt es innerhalb einer Minute",
+  refreshing: "Wird abgerufen … in einer Minute aktuell", noConn: "Keine Verbindung zum Fernseher", error: "Fehler",
+  noWait: "Keine neuen Meldungen zur Freigabe.", noNews: "Keine Meldungen.",
+  stPinned: "Angeheftet", stOn: "Auf dem Bildschirm", stHidden: "Ausgeblendet", stWait: "Wartet auf Freigabe", stOld: "Zu alt",
+  bShow: "Anzeigen", bPin: "📌 Anheften", bHide: "Ausblenden", bReset: "Zurücksetzen", bOpen: "Quelle öffnen ↗",
+  noMessages: "Noch keine Praxis-Infos.", onlyImage: "(nur Bild)", important: "Wichtig", inactive: "Nicht aktiv",
+  always: "immer", from: "ab", until: "bis", up: "nach oben", down: "nach unten", edit: "Bearbeiten",
+  editTitle: "Praxis-Info bearbeiten", newTitle: "Neue Praxis-Info", mTitle: "Überschrift (groß und kurz)", mText: "Text",
+  mImage: "Bild (optional)", mRemoveImage: "Bild entfernen", mLink: "Link als QR-Code (optional, z. B. Online-Terminbuchung)",
+  mFrom: "Anzeigen ab", mUntil: "Anzeigen bis", mSeconds: "Sekunden auf dem Bildschirm", mStyle: "Darstellung",
+  styleInfo: "Normal (grün)", styleImportant: "Wichtig (orange)", stylePoster: "Plakat (Bild über den ganzen Bildschirm)", mStatus: "Status", active: "aktiv", paused: "pausiert",
+  save: "Speichern", cancel: "Abbrechen", del: "Löschen", confirmDelete: "Diese Praxis-Info löschen?",
+  uploading: "Bild wird hochgeladen …", imageReady: "Bild bereit – jetzt speichern", needContent: "Bitte Überschrift, Text oder Bild angeben",
+  modeAuto: "Automatisch", modeApprove: "Erst nach Freigabe", remove: "Entfernen", confirmRemove: "Quelle entfernen?",
+  needUrl: "Bitte Adresse eingeben", testing: "Teste …", found: "Einträge gefunden", needNameUrl: "Bitte Name und Adresse eingeben",
+  sourceAdded: "Quelle hinzugefügt", wrongPin: "Falsche PIN", locked: "Zu viele falsche PINs. Bitte 5 Minuten warten.",
+  pinRule: "PIN: 4 bis 8 Ziffern", entries: "Einträge", notLoaded: "noch nicht geladen", sErr: "Fehler"
+},
+ar: {
+  loginText: "أدخل الرقم السري (PIN) – أو امسح رمز QR من التلفزيون. الرمز والرقم السري يظهران عند الضغط على زر <b>OK</b> في الريموت.",
+  loginBtn: "دخول", appSub: "التحكم بشاشة غرفة الانتظار",
+  refreshBtn: "↻ جلب الأخبار الآن", previewBtn: "معاينة الشاشة ↗", logoutBtn: "خروج",
+  tabNews: "الأخبار", tabMessages: "إعلانات العيادة", tabSources: "المصادر", tabSettings: "الإعدادات", tabHelp: "❓ التعليمات",
+  hintNews: "الأخبار من المصادر التي وضعها «بعد الموافقة» لا تظهر على الشاشة إلا بعد الضغط على <b>عرض</b>. <b>تثبيت</b> يجعل الخبر يظهر أولاً مهما كان قديماً. <b>إخفاء</b> يزيله من الشاشة. <a href='#' onclick='openHelp(\"h-news\");return false'>المزيد في التعليمات</a>",
+  fWait: "بانتظار الموافقة", fOn: "على الشاشة الآن", fAll: "الكل",
+  hintMessages: "إعلاناتكم الخاصة لغرفة الانتظار – مثلاً العطلة، حملة التطعيم، أوقات الدوام. يمكن عرض صورة (بوستر أو صورة) وحدها أو مع نص. <a href='#' onclick='openHelp(\"h-messages\");return false'>المزيد في التعليمات</a>",
+  newMessage: "+ إعلان جديد",
+  hintSources: "<b>تلقائي</b>: الأخبار الجديدة تظهر فوراً. <b>بعد الموافقة</b>: أنت تقرر في صفحة «الأخبار». التحذيرات تأتي من نظام الإنذار الرسمي NINA (ومعه الأرصاد الجوية DWD، مثل الحر) لمنطقتك. <a href='#' onclick='openHelp(\"h-sources\");return false'>المزيد في التعليمات</a>",
+  addSourceTitle: "إضافة مصدر جديد", lName: "الاسم", lType: "النوع", typeRss: "RSS / Atom", typeHtml: "صفحة ويب (قراءة الروابط)",
+  lUrl: "العنوان (URL)", lPattern: "لصفحات الويب فقط: نص يجب أن تحتويه روابط الأخبار (تعبير نمطي Regex)",
+  testBtn: "تجربة", addBtn: "إضافة",
+  lBackup: "نسخة احتياطية", backupBtn: "حفظ نسخة احتياطية", backupDone: "تم حفظ النسخة الاحتياطية",
+  backupHint: "الإعدادات وإعلانات العيادة والمصادر في ملف (بدون الرقم السري والصور). للاسترجاع: install-firetv.ps1 <IP> -Restore <الملف>.",
+  lChannel: "قناة التحديث", channelHint: "stable = العيادة (نسخ مجرَّبة). beta = ستيك التجربة، يستلم النسخ الجديدة أولاً.",
+  lVersion: "نسخة التطبيق والتحديثات", updateBtn: "ابحث عن تحديث الآن", updateStarted: "جاري البحث عن تحديث … الحالة بعد 15 ثانية",
+  adbHint: "التحديث التلقائي غير مفعّل بعد: على التلفزيون تظهر رسالة «السماح بتصحيح USB؟» – اختر «السماح دائماً» واضغط OK، ثم ابحث مرة ثانية.",
+  sMusic: "موسيقى الخلفية", lMusic: "موسيقى هادئة في غرفة الانتظار", on: "تشغيل", off: "إيقاف", lVolume: "مستوى الصوت",
+  musicHint: "تسجيلات ملكية عامة أو CC0 (بدون رسوم GEMA). هذا المستوى يُضاف إلى مستوى صوت التلفزيون نفسه.",
+  sLang: "لغات إضافية", lSecondLang: "كل بطاقة تُعرض بعدها أيضاً بـ",
+  secondLangHint: "أولاً بالألماني، وبعدها مباشرة نفس البطاقة بكل لغة مختارة. كل لغة تطيل مدة الدورة.", langSq: "الألبانية",
+  lDeepl: "مفتاح DeepL (اختياري)", deeplHint: "فارغ = ترجمة Google المجانية. مع مفتاح DeepL (مجاني من deepl.com) تكون أكثر ثباتاً.",
+  mArTitle: "الترجمة (العربية / اللغة الثانية)", mAuto: "↻ ترجمة تلقائية",
+  mArHint: "اتركها فارغة = تُترجم تلقائياً. أو اكتب ترجمتك هنا أو صحّح الترجمة.", translating: "جاري الترجمة …",
+  lLogo: "شعار العيادة", logoReset: "الشعار الافتراضي", logoHint: "الأفضل صورة PNG بخلفية شفافة أو SVG. بعدها اضغط «حفظ الإعدادات».",
+  logoReady: "الشعار جاهز – اضغط الآن «حفظ الإعدادات»", lBrand: "لون العيادة", brandReset: "تركواز الشعار (الافتراضي)",
+  brandHint: "الخلفية والشرائط وإعلانات العيادة كلها تأخذ ألوانها من هذا اللون.",
+  sScreen: "الشاشة", lPraxisName: "اسم العيادة", lSubtitle: "السطر الثاني (العنوان، التخصص …)", lTicker: "الشريط المتحرك أسفل الشاشة",
+  lSlideSeconds: "ثواني لكل خبر", lMessageEvery: "إعلان العيادة بعد كل … أخبار", lPerSource: "أقصى عدد أخبار من كل مصدر",
+  lMaxAge: "الأخبار التلقائية لا تُعرض إذا كانت أقدم من … يوم", lShowQr: "رمز QR للخبر", show: "يظهر", dontShow: "لا يظهر",
+  sWarnings: "التحذيرات الرسمية (NINA / DWD)", lArs: "رمز المنطقة (Regionalschlüssel)", arsHint: "Landkreis Gifhorn: 031510000000",
+  lArea: "تحذيرات الطقس فقط لمدينة", areaHint: "فارغ = كل المنطقة (Landkreis)", lSeverity: "من درجة تحذير",
+  sevMinor: "خفيف (الكل)", sevModerate: "متوسط", sevSevere: "عالٍ", sevExtreme: "شديد جداً",
+  lExtraLang: "عنوان التحذير أيضاً بلغة", langNone: "ألماني فقط", langEn: "الإنجليزية", langAr: "العربية", langTr: "التركية",
+  langRu: "الروسية", langUk: "الأوكرانية", langPl: "البولندية", langFr: "الفرنسية", langEs: "الإسبانية",
+  lRemoteKey: "مفتاح التحكم عن بعد بالإعلانات", remoteKeyHint: "يُدخل مرة واحدة (16 حرفاً أو أكثر). يسمح بتعديل إعلانات العيادة من خارجها.",
+  lSleep: "وقت الراحة (إغلاق الشاشة ليلاً)", lSleepAt: "إغلاق الشاشة عند الساعة", lWakeAt: "فتح الشاشة عند الساعة",
+  sleepHint: "احتياط لمؤقت التلفزيون: يترك الستيك ينام ويطفئ التلفزيون عبر HDMI-CEC.",
+  sDevice: "الجهاز والدخول", lAutostart: "التشغيل التلقائي بعد تشغيل الجهاز", autoYes: "نعم (تلفزيون العيادة)", autoNo: "لا",
+  lPin: "الرقم السري لهذه الصفحة (4–8 أرقام)", lAddress: "عنوان هذه الصفحة", saveSettings: "حفظ الإعدادات",
+  saved: "تم الحفظ", savedTv: "تم الحفظ – التلفزيون يأخذ التغيير خلال دقيقة",
+  refreshing: "جاري الجلب … خلال دقيقة تكون الأخبار محدّثة", noConn: "لا يوجد اتصال بالتلفزيون", error: "خطأ",
+  noWait: "لا توجد أخبار جديدة بانتظار الموافقة.", noNews: "لا توجد أخبار.",
+  stPinned: "مثبّت", stOn: "على الشاشة", stHidden: "مخفي", stWait: "بانتظار الموافقة", stOld: "قديم",
+  bShow: "عرض", bPin: "📌 تثبيت", bHide: "إخفاء", bReset: "إلغاء الاختيار", bOpen: "فتح المصدر ↗",
+  noMessages: "لا توجد إعلانات بعد.", onlyImage: "(صورة فقط)", important: "مهم", inactive: "غير فعّال",
+  always: "دائماً", from: "من", until: "إلى", up: "للأعلى", down: "للأسفل", edit: "تعديل",
+  editTitle: "تعديل الإعلان", newTitle: "إعلان جديد", mTitle: "العنوان (كبير وقصير)", mText: "النص",
+  mImage: "صورة (اختياري)", mRemoveImage: "حذف الصورة", mLink: "رابط يظهر كرمز QR (اختياري، مثلاً حجز المواعيد أونلاين)",
+  mFrom: "يظهر من تاريخ", mUntil: "يظهر حتى تاريخ", mSeconds: "ثواني على الشاشة", mStyle: "الشكل",
+  styleInfo: "عادي (أخضر)", styleImportant: "مهم (برتقالي)", stylePoster: "ملصق (صورة على كامل الشاشة)", mStatus: "الحالة", active: "فعّال", paused: "متوقف مؤقتاً",
+  save: "حفظ", cancel: "إلغاء", del: "حذف", confirmDelete: "حذف هذا الإعلان؟",
+  uploading: "جاري رفع الصورة …", imageReady: "الصورة جاهزة – اضغط حفظ الآن", needContent: "اكتب عنواناً أو نصاً أو أضف صورة",
+  modeAuto: "تلقائي", modeApprove: "بعد الموافقة", remove: "حذف", confirmRemove: "حذف هذا المصدر؟",
+  needUrl: "أدخل العنوان", testing: "جاري التجربة …", found: "عنصر وُجد", needNameUrl: "أدخل الاسم والعنوان",
+  sourceAdded: "تمت إضافة المصدر", wrongPin: "الرقم السري غلط", locked: "محاولات خاطئة كثيرة. انتظر 5 دقائق.",
+  pinRule: "الرقم السري: من 4 إلى 8 أرقام", entries: "عنصر", notLoaded: "لم يُحمّل بعد", sErr: "خطأ"
+}
+};
+
+// Server messages are German; show them in the chosen language.
+var SERVER_ERRORS = { "Falsche PIN": "wrongPin", "Zu viele falsche PINs. Bitte 5 Minuten warten.": "locked", "PIN: 4 bis 8 Ziffern": "pinRule" };
+
+var HELP = {
+de: '\
+<div class="card"><h2>Hilfe – so funktioniert Praxis TV</h2>\
+<p>Der Fernseher im Wartezimmer zeigt abwechselnd <b>Praxis-Infos</b> (Ihre eigenen Hinweise), <b>Gesundheitsmeldungen</b> aus offiziellen Quellen und – falls vorhanden – <b>amtliche Warnungen</b> für den Landkreis. Diese Seite steuert, was erscheint. Alles läuft auf dem Fire-TV-Stick selbst, ohne Cloud und ohne Patientendaten.</p>\
+<div class="toc"><a href="#h-start">Erste Schritte</a><a href="#h-tv">Der Bildschirm</a><a href="#h-remote">Fernbedienung</a><a href="#h-news">Meldungen</a><a href="#h-messages">Praxis-Infos</a><a href="#h-sources">Quellen</a><a href="#h-settings">Einstellungen</a><a href="#h-faq">Probleme lösen</a></div></div>\
+<div class="card" id="h-start"><h3>Erste Schritte</h3><ol>\
+<li>Fernseher und Fire-TV-Stick einschalten, App <b>Praxis TV</b> öffnen.</li>\
+<li>Auf der Fernbedienung <span class="k">OK</span> drücken: Adresse (z. B. <span class="ltr">http://192.168.178.104:8080</span>) und PIN erscheinen.</li>\
+<li><b>Am schnellsten:</b> den <b>QR-Code</b> im Fenster mit dem Handy scannen – die Steuerung öffnet sich direkt, ohne PIN-Eingabe. Oder mit Handy, Tablet oder PC <b>im selben WLAN</b> die Adresse im Browser öffnen und die PIN eingeben.</li>\
+<li>Oben rechts <b>DE / ع</b> wählt die Sprache dieser Seite. Der Fernseher bleibt auf Deutsch.</li>\
+<li>Jede Änderung erscheint innerhalb von etwa <b>einer Minute</b> auf dem Fernseher.</li></ol></div>\
+<div class="card" id="h-tv"><h3>Der Bildschirm</h3><ul>\
+<li><b>Oben:</b> Praxisname, zweite Zeile, Uhrzeit und Datum.</li>\
+<li><b>Roter Balken:</b> erscheint nur bei einer aktiven amtlichen Warnung (z. B. Hitze, Unwetter).</li>\
+<li><b>Mitte:</b> eine Karte nach der anderen – Meldung mit Quelle, Datum, Überschrift, Kurztext, Bild und QR-Code; Praxis-Info grün (normal) oder orange (wichtig); Warnung rot.</li>\
+<li><b>QR-Code:</b> Patienten scannen ihn mit dem Handy und lesen den ganzen Artikel bzw. öffnen Ihren Link.</li>\
+<li><b>Unten:</b> Fortschrittsbalken bis zur nächsten Karte und das Laufband.</li>\
+<li><b>Reihenfolge:</b> Warnungen → angeheftete Meldungen → übrige Meldungen abwechselnd nach Quelle; nach jeder dritten Meldung eine Praxis-Info.</li>\
+<li>Ohne Internet zeigt der Fernseher die zuletzt geladenen Meldungen und alle Praxis-Infos weiter.</li></ul></div>\
+<div class="card" id="h-remote"><h3>Fernbedienung</h3><ul>\
+<li><span class="k">OK</span> Adresse und PIN dieser Seite ein-/ausblenden.</li>\
+<li><span class="k">◀</span> <span class="k">▶</span> vorherige / nächste Karte.</li>\
+<li><span class="k">⏯</span> anhalten / weiterlaufen lassen.</li>\
+<li><span class="k">Home</span> oder <span class="k">Zurück</span> App verlassen.</li></ul></div>\
+<div class="card" id="h-news"><h3>Reiter „Meldungen“</h3>\
+<p>Alle Meldungen, die aus den Quellen geladen wurden. Die Zahl am Reiter zeigt, wie viele auf Ihre Freigabe warten.</p><ul>\
+<li><b>Filter:</b> „Wartet auf Freigabe“ = neu, noch nicht auf dem Bildschirm · „Auf dem Bildschirm“ = wird gerade gezeigt · „Alle“.</li>\
+<li><b>Anzeigen:</b> Meldung kommt auf den Bildschirm.</li>\
+<li><b>📌 Anheften:</b> Meldung kommt ganz nach vorne und bleibt, auch wenn sie älter ist.</li>\
+<li><b>Ausblenden:</b> Meldung verschwindet vom Bildschirm (auch bei automatischen Quellen).</li>\
+<li><b>Zurücksetzen:</b> Ihre Entscheidung aufheben – die Meldung folgt wieder der Regel ihrer Quelle.</li>\
+<li><b>Quelle öffnen:</b> den Originalartikel lesen, bevor Sie entscheiden.</li>\
+<li><b>Status-Schild:</b> Angeheftet · Auf dem Bildschirm · Ausgeblendet · Wartet auf Freigabe · Zu alt (älter als in den Einstellungen erlaubt).</li></ul>\
+<p class="muted">Tipp: Politische Pressemitteilungen lieber nicht freigeben – zeigen Sie, was Patienten im Alltag hilft (Impfungen, Hitze, Vorsorge, 116 117).</p></div>\
+<div class="card" id="h-messages"><h3>Reiter „Praxis-Infos“</h3>\
+<p>Ihre eigenen Hinweise. Mit <b>+ Neue Praxis-Info</b> anlegen, mit <b>Bearbeiten</b> ändern.</p><ul>\
+<li><b>Überschrift:</b> kurz und groß, z. B. „Praxis geschlossen“.</li>\
+<li><b>Text:</b> Einzelheiten. Zeilenumbrüche bleiben erhalten.</li>\
+<li><b>Bild:</b> Foto oder Plakat (JPG, PNG, WEBP, GIF, bis 12 MB). Ohne Überschrift und Text wird nur das Bild bildschirmfüllend gezeigt. Nach dem Hochladen <b>Speichern</b> drücken.</li>\
+<li><b>Link als QR-Code:</b> z. B. Online-Terminbuchung – erscheint als QR-Code neben dem Text.</li>\
+<li><b>Anzeigen ab / bis:</b> nur in diesem Zeitraum zeigen (leer = immer). Ideal für Urlaub oder Impfaktionen.</li>\
+<li><b>Sekunden:</b> wie lange die Karte stehen bleibt (5–120).</li>\
+<li><b>Darstellung:</b> Normal (grün) oder Wichtig (orange).</li>\
+<li><b>Übersetzung:</b> leer lassen = automatisch übersetzt. Mit „↻ Automatisch übersetzen“ die Übersetzung holen und bei Bedarf verbessern – dann gilt Ihre Fassung.</li><li><b>Status:</b> pausiert = gespeichert, aber nicht gezeigt.</li>\
+<li><b>↑ ↓:</b> Reihenfolge der Praxis-Infos ändern. <b>Löschen</b> im Bearbeiten-Fenster.</li></ul></div>\
+<div class="card" id="h-sources"><h3>Reiter „Quellen“</h3><ul>\
+<li><b>Häkchen:</b> Quelle an/aus.</li>\
+<li><b>Automatisch:</b> neue Meldungen erscheinen sofort. <b>Erst nach Freigabe:</b> Sie entscheiden im Reiter „Meldungen“.</li>\
+<li><b>Statuszeile:</b> „OK · 9 Einträge · Uhrzeit“ = letzter erfolgreicher Abruf. „Fehler“ = Seite nicht erreichbar oder verändert.</li>\
+<li>Meldungen werden alle 30 Minuten geladen, Warnungen alle 5 Minuten. „↻ Quellen jetzt abrufen“ lädt sofort.</li>\
+<li><b>Vorhandene Quellen:</b> NINA/DWD (amtliche Warnungen) · AOK Niedersachsen · Bundesgesundheitsministerium · BMG Pressemitteilungen · Gesundheitsministerium Niedersachsen · NLGA · KV Niedersachsen · RKI.</li>\
+<li><b>Eigene Quelle:</b> Name und Adresse eintragen. „RSS-Feed“ für Seiten mit RSS-Adresse. „Webseite“ liest Links einer Nachrichtenseite – dann ein Muster angeben, das nur in Artikel-Links vorkommt (z. B. <span class="ltr">/pressemitteilungen/</span>). Erst <b>Testen</b>, dann <b>Hinzufügen</b>. Neue Quellen stehen auf „Erst nach Freigabe“.</li></ul></div>\
+<div class="card" id="h-settings"><h3>Reiter „Einstellungen“</h3><ul>\
+<li><b>Zweite Sprache:</b> jede Karte erscheint zuerst auf Deutsch und direkt danach übersetzt (Standard: Arabisch). Meldungen werden automatisch übersetzt und mit „ترجمة آلية“ (maschinelle Übersetzung) markiert. Unter jeder Meldung im Reiter „Meldungen“ steht die Übersetzung zur Kontrolle. „nur Deutsch“ schaltet es aus.</li><li><b>Name der Praxis / Zweite Zeile:</b> Kopfzeile des Bildschirms.</li><li><b>Logo:</b> Bild hochladen (am besten PNG mit transparentem Hintergrund) – erscheint oben links. „Standard-Logo“ nimmt das eingebaute Praxislogo.</li><li><b>Praxisfarbe:</b> eine Farbe wählen – Hintergrund, Fortschrittsbalken und grüne Praxis-Infos passen sich an. Standard: das Türkis aus dem Praxislogo.</li>\
+<li><b>Laufband:</b> Text, der unten durchläuft. Einzelne Hinweise mit „·“ trennen.</li>\
+<li><b>Sekunden pro Meldung:</b> Anzeigedauer jeder Meldung.</li>\
+<li><b>Praxis-Info nach jeder … Meldung:</b> 3 = nach jeweils 3 Meldungen eine Praxis-Info.</li>\
+<li><b>Höchstens … je Quelle:</b> verhindert, dass eine Quelle alles füllt.</li>\
+<li><b>Nicht älter als … Tage:</b> ältere automatische Meldungen werden nicht gezeigt (angeheftete und freigegebene schon).</li>\
+<li><b>QR-Code:</b> an/aus.</li>\
+<li><b>Regionalschlüssel:</b> Landkreis für Warnungen (Gifhorn: 031510000000). <b>Nur für Ort:</b> Wetterwarnungen nur, wenn dieser Ort betroffen ist. <b>Ab Warnstufe:</b> kleinere Warnungen ausblenden. <b>Zusätzlich in:</b> zweite Sprache unter der Warnung.</li>\
+<li><b>Automatisch starten:</b> „ja“ für den Praxis-Fernseher – die App öffnet sich nach Strom an / Neustart von selbst. „nein“ für Test- oder Privatgeräte.</li>\
+<li><b>PIN:</b> 4–8 Ziffern. Nach dem Ändern bleiben Sie auf diesem Gerät angemeldet.</li>\
+<li>Am Ende <b>Einstellungen speichern</b> drücken.</li></ul></div>\
+<div class="card" id="h-faq"><h3>Probleme lösen</h3><ul>\
+<li><b>Seite öffnet nicht:</b> Ist das Gerät im selben WLAN wie der Fernseher? Läuft die App? Adresse mit <span class="k">OK</span> am Fernseher prüfen – sie kann sich nach einem Router-Neustart ändern. Abhilfe: im Router feste IP für den Fire TV einstellen.</li>\
+<li><b>PIN vergessen:</b> <span class="k">OK</span> auf der Fernbedienung zeigt sie an.</li>\
+<li><b>„Zu viele falsche PINs“:</b> 5 Minuten warten.</li>\
+<li><b>Änderung nicht sichtbar:</b> bis zu einer Minute warten; mit <span class="k">▶</span> weiterblättern.</li>\
+<li><b>Quelle mit „Fehler“:</b> „↻ Quellen jetzt abrufen“. Bleibt der Fehler, hat die Webseite sich vermutlich geändert – Quelle ausschalten oder Muster anpassen.</li>\
+<li><b>Keine Warnung zu sehen:</b> normal – der rote Balken erscheint nur, wenn es eine aktive Warnung gibt.</li>\
+<li><b>Bildschirmschoner:</b> die App hält den Bildschirm wach, solange sie geöffnet ist.</li>\
+<li><b>Sicherheit:</b> Port 8080 im Router nie ins Internet freigeben. Gäste-WLAN der Patienten vom Praxis-WLAN trennen.</li></ul></div>',
+ar: '\
+<div class="card"><h2>التعليمات – كيف يعمل Praxis TV</h2>\
+<p>تلفزيون غرفة الانتظار يعرض بالتناوب <b>إعلانات العيادة</b> (إعلاناتكم الخاصة)، و<b>أخباراً صحية</b> من مصادر رسمية، و<b>تحذيرات رسمية</b> للمنطقة عند وجودها. هذه الصفحة تتحكم بما يظهر. كل شيء يعمل على جهاز الـ Fire TV نفسه، بدون إنترنت سحابي وبدون أي بيانات مرضى.</p>\
+<div class="toc"><a href="#h-start">البداية</a><a href="#h-tv">الشاشة</a><a href="#h-remote">الريموت</a><a href="#h-news">الأخبار</a><a href="#h-messages">إعلانات العيادة</a><a href="#h-sources">المصادر</a><a href="#h-settings">الإعدادات</a><a href="#h-faq">حل المشاكل</a></div></div>\
+<div class="card" id="h-start"><h3>البداية</h3><ol>\
+<li>شغّل التلفزيون والـ Fire TV Stick وافتح تطبيق <b>Praxis TV</b>.</li>\
+<li>اضغط <span class="k">OK</span> في الريموت: يظهر العنوان (مثلاً <span class="ltr">http://192.168.178.104:8080</span>) والرقم السري.</li>\
+<li><b>الأسرع:</b> امسح <b>رمز QR</b> الظاهر في النافذة بكاميرا الموبايل – تفتح لوحة التحكم مباشرة بدون كتابة الرقم السري. أو من الموبايل أو التابليت أو الكمبيوتر <b>على نفس الواي فاي</b> افتح العنوان في المتصفح وأدخل الرقم السري.</li>\
+<li>زر <b>DE / ع</b> في الأعلى يغيّر لغة هذه الصفحة. شاشة التلفزيون تبقى بالألماني للمرضى.</li>\
+<li>أي تغيير يظهر على التلفزيون خلال <b>دقيقة تقريباً</b>.</li></ol></div>\
+<div class="card" id="h-tv"><h3>الشاشة</h3><ul>\
+<li><b>الأعلى:</b> اسم العيادة، السطر الثاني، الساعة والتاريخ.</li>\
+<li><b>الشريط الأحمر:</b> يظهر فقط عند وجود تحذير رسمي فعّال (حر شديد، عاصفة…).</li>\
+<li><b>الوسط:</b> بطاقة بعد بطاقة – الخبر مع المصدر والتاريخ والعنوان والملخص والصورة ورمز QR؛ إعلان العيادة أخضر (عادي) أو برتقالي (مهم)؛ التحذير أحمر.</li>\
+<li><b>رمز QR:</b> المريض يمسحه بالموبايل ليقرأ الخبر كاملاً أو يفتح الرابط الذي وضعته.</li>\
+<li><b>الأسفل:</b> شريط يبيّن الوقت المتبقي للبطاقة، والنص المتحرك.</li>\
+<li><b>الترتيب:</b> التحذيرات ← الأخبار المثبّتة ← باقي الأخبار بالتناوب بين المصادر؛ وبعد كل 3 أخبار إعلان من العيادة.</li>\
+<li>بدون إنترنت يبقى التلفزيون يعرض آخر أخبار محمّلة وكل إعلانات العيادة.</li></ul></div>\
+<div class="card" id="h-remote"><h3>الريموت</h3><ul>\
+<li><span class="k">OK</span> إظهار/إخفاء عنوان هذه الصفحة والرقم السري.</li>\
+<li><span class="k">◀</span> <span class="k">▶</span> البطاقة السابقة / التالية.</li>\
+<li><span class="k">⏯</span> إيقاف مؤقت / متابعة.</li>\
+<li><span class="k">Home</span> أو <span class="k">رجوع</span> الخروج من التطبيق.</li></ul></div>\
+<div class="card" id="h-news"><h3>صفحة «الأخبار»</h3>\
+<p>كل الأخبار التي جُلبت من المصادر. الرقم على الزر يبيّن كم خبراً ينتظر موافقتك.</p><ul>\
+<li><b>الفلاتر:</b> «بانتظار الموافقة» = جديد ولم يظهر بعد · «على الشاشة الآن» = يُعرض حالياً · «الكل».</li>\
+<li><b>عرض:</b> الخبر يظهر على الشاشة.</li>\
+<li><b>📌 تثبيت:</b> الخبر يظهر في المقدمة ويبقى حتى لو كان قديماً.</li>\
+<li><b>إخفاء:</b> الخبر يختفي من الشاشة (حتى من المصادر التلقائية).</li>\
+<li><b>إلغاء الاختيار:</b> يلغي قرارك، فيعود الخبر لقاعدة مصدره.</li>\
+<li><b>فتح المصدر:</b> لقراءة الخبر الأصلي قبل أن تقرر.</li>\
+<li><b>علامة الحالة:</b> مثبّت · على الشاشة · مخفي · بانتظار الموافقة · قديم (أقدم من المسموح في الإعدادات).</li></ul>\
+<p class="muted">نصيحة: لا تعرض البيانات السياسية للوزارات – اختر ما يفيد المريض في حياته (التطعيم، الحر، الفحوصات الوقائية، رقم 116 117).</p>\
+<p class="muted">الأخبار نفسها بالألماني لأنها من مصادر ألمانية رسمية.</p></div>\
+<div class="card" id="h-messages"><h3>صفحة «إعلانات العيادة»</h3>\
+<p>إعلاناتكم الخاصة. أنشئ إعلاناً بزر <b>+ إعلان جديد</b> وعدّله بزر <b>تعديل</b>.</p><ul>\
+<li><b>العنوان:</b> قصير وكبير، مثلاً «Praxis geschlossen».</li>\
+<li><b>النص:</b> التفاصيل. الأسطر الجديدة تبقى كما كتبتها.</li>\
+<li><b>الصورة:</b> صورة أو بوستر (JPG, PNG, WEBP, GIF حتى 12 ميغا). إذا لم تكتب عنواناً ولا نصاً تظهر الصورة وحدها بكامل الشاشة. بعد الرفع اضغط <b>حفظ</b>.</li>\
+<li><b>رابط كرمز QR:</b> مثلاً رابط حجز المواعيد أونلاين – يظهر كرمز QR بجانب النص.</li>\
+<li><b>يظهر من / حتى تاريخ:</b> يظهر فقط في هذه الفترة (فارغ = دائماً). مثالي للعطلة أو حملة التطعيم.</li>\
+<li><b>الثواني:</b> مدة بقاء البطاقة على الشاشة (5–120).</li>\
+<li><b>الشكل:</b> عادي (أخضر) أو مهم (برتقالي).</li>\
+<li><b>الترجمة:</b> اتركها فارغة = تُترجم تلقائياً. أو اضغط «↻ ترجمة تلقائية» ثم صحّح النص إذا لزم – عندها تُعرض ترجمتك أنت.</li><li><b>الحالة:</b> متوقف مؤقتاً = محفوظ لكن لا يظهر.</li>\
+<li><b>↑ ↓:</b> تغيير ترتيب الإعلانات. <b>الحذف</b> من داخل نافذة التعديل.</li></ul>\
+<p class="muted">يمكنك كتابة الإعلان بأي لغة (ألماني، عربي، تركي…) – الشاشة تعرضه كما هو.</p></div>\
+<div class="card" id="h-sources"><h3>صفحة «المصادر»</h3><ul>\
+<li><b>المربع:</b> تشغيل/إطفاء المصدر.</li>\
+<li><b>تلقائي:</b> الأخبار الجديدة تظهر فوراً. <b>بعد الموافقة:</b> أنت تقرر في صفحة «الأخبار».</li>\
+<li><b>سطر الحالة:</b> «OK · 9 عنصر · الوقت» = آخر جلب ناجح. «خطأ» = الموقع لا يستجيب أو تغيّر تصميمه.</li>\
+<li>الأخبار تُجلب كل 30 دقيقة، والتحذيرات كل 5 دقائق. زر «↻ جلب الأخبار الآن» يجلبها فوراً.</li>\
+<li><b>المصادر الموجودة:</b> NINA/DWD (تحذيرات رسمية) · AOK Niedersachsen · وزارة الصحة الاتحادية BMG · بيانات BMG الصحفية · وزارة صحة نيدرزاكسن · NLGA (دائرة الصحة في الولاية) · KV Niedersachsen · معهد روبرت كوخ RKI.</li>\
+<li><b>مصدر جديد:</b> اكتب الاسم والعنوان. «RSS» للمواقع التي لها رابط RSS. «صفحة ويب» يقرأ روابط صفحة أخبار – وعندها اكتب نصاً موجوداً فقط في روابط الأخبار (مثلاً <span class="ltr">/pressemitteilungen/</span>). اضغط <b>تجربة</b> أولاً ثم <b>إضافة</b>. المصادر الجديدة تكون على «بعد الموافقة».</li></ul></div>\
+<div class="card" id="h-settings"><h3>صفحة «الإعدادات»</h3><ul>\
+<li><b>اللغة الثانية:</b> كل بطاقة تظهر أولاً بالألماني وبعدها مباشرة مترجمة (الافتراضي: العربية). الأخبار تُترجم تلقائياً ويظهر عليها «ترجمة آلية». في صفحة «الأخبار» تظهر الترجمة تحت كل خبر لتراجعها. «ألماني فقط» يوقف الترجمة.</li><li><b>اسم العيادة / السطر الثاني:</b> أعلى الشاشة.</li><li><b>الشعار:</b> ارفع صورة الشعار (الأفضل PNG بخلفية شفافة) – تظهر أعلى يسار الشاشة. «الشعار الافتراضي» يرجع شعار العيادة المدمج.</li><li><b>لون العيادة:</b> اختر لوناً – الخلفية وشريط التقدم وإعلانات العيادة تتغير معه. الافتراضي: لون التركواز من شعار العيادة.</li>\
+<li><b>الشريط المتحرك:</b> النص الذي يمر أسفل الشاشة. افصل بين المعلومات بعلامة «·».</li>\
+<li><b>ثواني لكل خبر:</b> مدة عرض كل خبر.</li>\
+<li><b>إعلان العيادة بعد كل … أخبار:</b> 3 = بعد كل 3 أخبار إعلان.</li>\
+<li><b>أقصى عدد من كل مصدر:</b> حتى لا يملأ مصدر واحد كل الوقت.</li>\
+<li><b>أقدم من … يوم:</b> الأخبار التلقائية الأقدم لا تظهر (المثبّتة والموافق عليها تظهر).</li>\
+<li><b>رمز QR:</b> يظهر / لا يظهر.</li>\
+<li><b>رمز المنطقة:</b> المنطقة للتحذيرات (Gifhorn: 031510000000). <b>فقط لمدينة:</b> تحذيرات الطقس فقط إذا شملت هذه المدينة. <b>من درجة:</b> إخفاء التحذيرات الخفيفة. <b>بلغة أيضاً:</b> ترجمة عنوان التحذير تحته.</li>\
+<li><b>التشغيل التلقائي:</b> «نعم» لتلفزيون العيادة – التطبيق يفتح وحده بعد انقطاع الكهرباء أو إعادة التشغيل. «لا» لأجهزة التجربة أو البيت.</li>\
+<li><b>الرقم السري:</b> من 4 إلى 8 أرقام. بعد تغييره تبقى مسجلاً على هذا الجهاز.</li>\
+<li>في النهاية اضغط <b>حفظ الإعدادات</b>.</li></ul></div>\
+<div class="card" id="h-faq"><h3>حل المشاكل</h3><ul>\
+<li><b>الصفحة لا تفتح:</b> هل جهازك على نفس الواي فاي مع التلفزيون؟ هل التطبيق مفتوح؟ تأكد من العنوان بزر <span class="k">OK</span> – قد يتغير بعد إعادة تشغيل الراوتر. الحل: تثبيت عنوان IP للـ Fire TV في إعدادات الراوتر.</li>\
+<li><b>نسيت الرقم السري:</b> زر <span class="k">OK</span> في الريموت يظهره.</li>\
+<li><b>«محاولات خاطئة كثيرة»:</b> انتظر 5 دقائق.</li>\
+<li><b>التغيير لا يظهر:</b> انتظر حتى دقيقة، أو انتقل للبطاقة التالية بزر <span class="k">▶</span>.</li>\
+<li><b>مصدر عليه «خطأ»:</b> اضغط «↻ جلب الأخبار الآن». إذا بقي الخطأ، فالموقع غالباً غيّر تصميمه – أطفئ المصدر أو عدّل النص (Muster).</li>\
+<li><b>لا يوجد تحذير:</b> هذا طبيعي – الشريط الأحمر يظهر فقط عند وجود تحذير فعّال.</li>\
+<li><b>شاشة التوقف:</b> التطبيق يمنعها طالما هو مفتوح.</li>\
+<li><b>الأمان:</b> لا تفتح المنفذ 8080 في الراوتر للإنترنت أبداً. واي فاي الضيوف للمرضى يجب أن يكون منفصلاً عن شبكة العيادة.</li></ul></div>'
+};
+
+// ---------------------------------------------------------------- language
+var LANG = "de";
+try { LANG = localStorage.getItem("praxisLang") || ((navigator.language || "").indexOf("ar") === 0 ? "ar" : "de"); } catch (e) {}
+function t(k) { return (T[LANG] && T[LANG][k]) || T.de[k] || k; }
+function setLang(l) {
+  LANG = l; try { localStorage.setItem("praxisLang", l); } catch (e) {}
+  document.documentElement.lang = l; document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
+  Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function (e) { e.innerHTML = t(e.getAttribute("data-t")); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-lang]"), function (b) { b.classList.toggle("on", b.getAttribute("data-lang") === l); });
+  $("helpBody").innerHTML = HELP[l];
+  if (S) { renderNews(); renderMessages(); renderSources(); renderLangBoxes(); }
+}
+Array.prototype.forEach.call(document.querySelectorAll("[data-lang]"), function (b) {
+  b.onclick = function () { setLang(b.getAttribute("data-lang")); };
+});
+
+// ---------------------------------------------------------------- basics
+var PIN = "", S = null, filter = "wait", editing = -1;
+try { PIN = localStorage.getItem("praxisPin") || ""; } catch (e) {}
+// QR code on the TV opens http://…:8080/#pin=1234 – sign in with it, then hide it from the address bar.
+(function () {
+  var m = /[#&]pin=(\d{4,8})/.exec(location.hash);
+  if (!m) return;
+  PIN = m[1];
+  try { localStorage.setItem("praxisPin", PIN); } catch (e) {}
+  try { history.replaceState(null, "", location.pathname); } catch (e) { location.hash = ""; }
+})();
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+  return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function toast(s) { var e = $("toast"); e.textContent = s; e.style.display = "block";
+  clearTimeout(e._t); e._t = setTimeout(function () { e.style.display = "none"; }, 2800); }
+function fmt(ms) { if (!ms) return ""; var d = new Date(ms);
+  return ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear(); }
+function serverText(s) { return SERVER_ERRORS[s] ? t(SERVER_ERRORS[s]) : s; }
+
+function api(path, body, cb) {
+  var x = new XMLHttpRequest();
+  x.open(body === undefined ? "GET" : "POST", path);
+  x.setRequestHeader("X-Pin", PIN);
+  if (body !== undefined && !(body instanceof FormData)) x.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+  x.onload = function () {
+    var r = null; try { r = JSON.parse(x.responseText); } catch (e) {}
+    if (x.status === 401 || x.status === 403) { showLogin(r && r.error); return; }
+    if (x.status !== 200) { toast((r && serverText(r.error)) || t("error") + " " + x.status); return; }
+    if (cb) cb(r);
+  };
+  x.onerror = function () { toast(t("noConn")); };
+  x.send(body === undefined ? null : (body instanceof FormData ? body : JSON.stringify(body)));
+}
+
+function showLogin(err) { $("app").style.display = "none"; $("login").style.display = "block";
+  $("loginErr").textContent = err && PIN ? serverText(err) : ""; $("pin").focus(); }
+function login() { PIN = $("pin").value.trim(); try { localStorage.setItem("praxisPin", PIN); } catch (e) {} load(); }
+function logout() { PIN = ""; try { localStorage.removeItem("praxisPin"); } catch (e) {} showLogin(); }
+$("pin").addEventListener("keydown", function (e) { if (e.key === "Enter") login(); });
+
+function load() {
+  api("/api/state", undefined, function (r) {
+    S = r; $("login").style.display = "none"; $("app").style.display = "block";
+    $("hName").textContent = S.settings.praxisName || "Praxis TV";
+    renderNews(); renderMessages(); renderSources(); renderSettings();
+  });
+}
+function refresh() { api("/api/refresh", {}, function () { toast(t("refreshing")); setTimeout(load, 20000); }); }
+
+// Tabs
+function openTab(name) {
+  Array.prototype.forEach.call(document.querySelectorAll("nav button, section"), function (e) { e.classList.remove("on"); });
+  document.querySelector('nav button[data-tab="' + name + '"]').classList.add("on"); $(name).classList.add("on");
+}
+function openHelp(anchor) { openTab("help"); var a = $(anchor); if (a) a.scrollIntoView({ behavior: "smooth" }); }
+Array.prototype.forEach.call(document.querySelectorAll("nav button"), function (b) {
+  b.onclick = function () { openTab(b.getAttribute("data-tab")); };
+});
+Array.prototype.forEach.call(document.querySelectorAll(".filters .btn"), function (b) {
+  b.onclick = function () {
+    Array.prototype.forEach.call(document.querySelectorAll(".filters .btn"), function (e) { e.classList.remove("on"); });
+    b.classList.add("on"); filter = b.getAttribute("data-f"); renderNews();
+  };
+});
+
+// ---------------------------------------------------------------- Meldungen
+function waiting(i) { return !i.shown && !i.state && i.mode === "approve"; }
+function renderNews() {
+  var wait = S.items.filter(waiting).length;
+  $("waitCount").style.display = wait ? "inline" : "none"; $("waitCount").textContent = wait;
+  var list = S.items.filter(function (i) { return filter === "all" || (filter === "on" ? i.shown : waiting(i)); });
+  if (!list.length) { $("newsList").innerHTML = '<div class="empty">' + t(filter === "wait" ? "noWait" : "noNews") + '</div>'; return; }
+  $("newsList").innerHTML = list.map(function (i) {
+    var badge = i.state === "pinned" ? '<span class="badge b-pin">' + t("stPinned") + '</span>'
+      : i.shown ? '<span class="badge b-on">' + t("stOn") + '</span>'
+      : i.state === "hidden" ? '<span class="badge b-off">' + t("stHidden") + '</span>'
+      : i.mode === "approve" ? '<span class="badge b-wait">' + t("stWait") + '</span>'
+      : '<span class="badge b-off">' + t("stOld") + '</span>';
+    var b = function (st, key, cls) { return '<button class="btn ' + (cls || "") + '" onclick="setItem(\'' + i.id + '\',\'' + st + '\')">' + t(key) + '</button>'; };
+    return '<div class="card item ' + i.kind + '"><div class="row"><span class="chip" style="background:' + esc(i.color) + '">' + esc(i.sourceName) +
+      '</span><span class="muted">' + fmt(i.date) + '</span><span class="grow"></span>' + badge + '</div>' +
+      '<h3>' + esc(i.title) + '</h3>' + (i.titleTr ? '<div class="tr" dir="auto">↳ ' + esc(i.titleTr).replace(/⁨([^⁩]*)⁩/g, '<span class="term" dir="ltr">$1</span>') + '</div>' : '') +
+      (i.summary ? '<p>' + esc(i.summary) + '</p>' : '') +
+      '<div class="row">' + (i.shown && i.state !== "pinned" ? "" : b("approved", "bShow", "primary")) +
+      (i.state === "pinned" ? "" : b("pinned", "bPin")) + (i.state === "hidden" ? "" : b("hidden", "bHide", "danger")) +
+      (i.state ? b("", "bReset") : "") + (i.link ? '<a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="' + esc(i.link) + '">' + t("bOpen") + '</a>' : '') +
+      '</div></div>';
+  }).join("");
+}
+function setItem(id, st) { api("/api/item", { id: id, state: st }, function () { toast(t("savedTv")); load(); }); }
+
+// ---------------------------------------------------------------- Praxis-Infos
+function day(s) { return s.split("-").reverse().join("."); }
+function renderMessages() {
+  if (!S.messages.length) { $("msgList").innerHTML = '<div class="empty">' + t("noMessages") + '</div>'; return; }
+  $("msgList").innerHTML = S.messages.map(function (m, k) {
+    var when = (m.from || m.until) ? (m.from ? t("from") + " " + day(m.from) : "") + (m.until ? " " + t("until") + " " + day(m.until) : "") : t("always");
+    return '<div class="card"><div class="row">' + (m.image ? '<img class="thumb" src="' + esc(m.image) + '">' : '') +
+      '<div class="grow"><div class="row"><b class="de-text">' + esc(m.title || t("onlyImage")) + '</b>' +
+      (m.style === "important" ? '<span class="badge b-wait">' + t("important") + '</span>' : '') +
+      (m.active ? '<span class="badge b-on">' + t("stOn") + '</span>' : '<span class="badge b-off">' + t("inactive") + '</span>') + '</div>' +
+      '<div class="muted de-text">' + esc((m.text || "").slice(0, 140)) + '</div><div class="muted">' + when + ' · ' + m.seconds + ' s</div></div>' +
+      '<div class="row"><button class="btn" onclick="moveMessage(' + k + ',-1)" title="' + t("up") + '">↑</button>' +
+      '<button class="btn" onclick="moveMessage(' + k + ',1)" title="' + t("down") + '">↓</button>' +
+      '<button class="btn" onclick="editMessage(' + k + ')">' + t("edit") + '</button></div></div></div>';
+  }).join("");
+}
+function editMessage(k) {
+  editing = k;
+  var m = k >= 0 ? S.messages[k] : { title: "", text: "", image: "", link: "", from: "", until: "", enabled: true, seconds: 15, style: "info" };
+  var e = $("editor"); e.style.display = "block";
+  e.innerHTML = '<h3 style="margin-top:0">' + t(k >= 0 ? "editTitle" : "newTitle") + '</h3>' +
+    '<label>' + t("mTitle") + '</label><input id="m_title" type="text" dir="auto" maxlength="90" value="' + esc(m.title) + '">' +
+    '<label>' + t("mText") + '</label><textarea id="m_text" dir="auto" maxlength="600">' + esc(m.text) + '</textarea>' +
+    '<div class="card" style="background:#f8fafc;margin-top:12px"><div class="row"><b class="grow">' + t("mArTitle") + '</b>' +
+    '<button class="btn" onclick="autoTranslate()">' + t("mAuto") + '</button></div>' +
+    '<label>' + t("mTitle") + '</label><input id="m_titleAr" type="text" dir="auto" maxlength="120" value="' + esc(m.titleAr || "") + '">' +
+    '<label>' + t("mText") + '</label><textarea id="m_textAr" dir="auto" maxlength="800">' + esc(m.textAr || "") + '</textarea>' +
+    '<div class="muted">' + t("mArHint") + '</div></div>' +
+    '<label>' + t("mImage") + '</label><div class="row"><img id="m_thumb" class="thumb" src="' + esc(m.image) + '" style="' + (m.image ? "" : "display:none") + '">' +
+    '<input id="m_file" type="file" accept="image/*" onchange="upload()"><button class="btn danger" onclick="clearImage()">' + t("mRemoveImage") + '</button></div>' +
+    '<input id="m_image" type="hidden" value="' + esc(m.image) + '">' +
+    '<label>' + t("mLink") + '</label><input id="m_link" type="text" class="ltr" placeholder="https://…" value="' + esc(m.link || "") + '">' +
+    '<div class="grid3"><div><label>' + t("mFrom") + '</label><input id="m_from" type="date" value="' + esc(m.from) + '"></div>' +
+    '<div><label>' + t("mUntil") + '</label><input id="m_until" type="date" value="' + esc(m.until) + '"></div>' +
+    '<div><label>' + t("mSeconds") + '</label><input id="m_seconds" type="number" min="5" max="120" value="' + m.seconds + '"></div>' +
+    '<div><label>' + t("mStyle") + '</label><select id="m_style"><option value="info">' + t("styleInfo") + '</option><option value="important"' +
+    (m.style === "important" ? " selected" : "") + '>' + t("styleImportant") + '</option><option value="poster"' +
+    (m.style === "poster" ? " selected" : "") + '>' + t("stylePoster") + '</option></select></div>' +
+    '<div><label>' + t("mStatus") + '</label><select id="m_enabled"><option value="true">' + t("active") + '</option><option value="false"' +
+    (m.enabled ? "" : " selected") + '>' + t("paused") + '</option></select></div></div>' +
+    '<div class="row" style="margin-top:14px"><button class="btn primary" onclick="saveMessage()">' + t("save") + '</button>' +
+    '<button class="btn" onclick="closeEditor()">' + t("cancel") + '</button><span class="grow"></span>' +
+    (k >= 0 ? '<button class="btn danger" onclick="deleteMessage()">' + t("del") + '</button>' : '') + '</div>';
+  e.scrollIntoView({ behavior: "smooth" }); $("m_title").focus();
+}
+function autoTranslate() {
+  var title = $("m_title").value.trim(), text = $("m_text").value.trim();
+  toast(t("translating"));
+  if (title) api("/api/translate", { text: title }, function (r) { $("m_titleAr").value = r.text; });
+  if (text) api("/api/translate", { text: text }, function (r) { $("m_textAr").value = r.text; });
+}
+function closeEditor() { $("editor").style.display = "none"; editing = -1; }
+function upload() {
+  var f = $("m_file").files[0]; if (!f) return;
+  var fd = new FormData(); fd.append("file", f, f.name);
+  toast(t("uploading"));
+  api("/api/upload", fd, function (r) { $("m_image").value = r.url; $("m_thumb").src = r.url; $("m_thumb").style.display = ""; toast(t("imageReady")); });
+}
+function clearImage() { $("m_image").value = ""; $("m_thumb").style.display = "none"; }
+function saveMessage() {
+  var m = { id: editing >= 0 ? S.messages[editing].id : "", title: $("m_title").value.trim(), text: $("m_text").value.trim(),
+    image: $("m_image").value, link: $("m_link").value.trim(), from: $("m_from").value, until: $("m_until").value, seconds: +$("m_seconds").value || 15,
+    style: $("m_style").value, enabled: $("m_enabled").value === "true",
+    titleAr: $("m_titleAr").value.trim(), textAr: $("m_textAr").value.trim() };
+  if (!m.title && !m.text && !m.image) { toast(t("needContent")); return; }
+  var list = S.messages.slice();
+  if (editing >= 0) list[editing] = m; else list.unshift(m);
+  saveMessages(list);
+}
+function deleteMessage() { if (!confirm(t("confirmDelete"))) return;
+  var list = S.messages.slice(); list.splice(editing, 1); saveMessages(list); }
+function moveMessage(k, d) { var j = k + d; if (j < 0 || j >= S.messages.length) return;
+  var list = S.messages.slice(); var x = list[k]; list[k] = list[j]; list[j] = x; saveMessages(list); }
+function saveMessages(list) { api("/api/messages", list, function () { closeEditor(); toast(t("saved")); load(); }); }
+
+// ---------------------------------------------------------------- Quellen
+function statusText(s) {
+  return LANG === "de" ? s : s.replace("Einträge", t("entries")).replace("noch nicht geladen", t("notLoaded")).replace(/^Fehler/, t("sErr"));
+}
+function renderSources() {
+  $("srcList").innerHTML = S.sources.map(function (s, k) {
+    var custom = ["nina", "aok-nds", "bmg-meldungen", "bmg-presse", "ms-nds", "nlga", "kvn", "rki"].indexOf(s.id) < 0;
+    return '<div class="card"><div class="row"><label class="switch"><input type="checkbox" ' + (s.enabled ? "checked" : "") +
+      ' onchange="setSource(' + k + ',\'enabled\',this.checked)"> <span class="chip" style="background:' + esc(s.color) + '">' + esc(s.name) + '</span></label>' +
+      '<span class="grow"></span><select style="width:auto" onchange="setSource(' + k + ',\'mode\',this.value)">' +
+      '<option value="auto"' + (s.mode === "auto" ? " selected" : "") + '>' + t("modeAuto") + '</option>' +
+      '<option value="approve"' + (s.mode === "approve" ? " selected" : "") + '>' + t("modeApprove") + '</option>' +
+      '</select>' + (custom ? '<button class="btn danger" onclick="removeSource(' + k + ')">' + t("remove") + '</button>' : '') + '</div>' +
+      '<div class="muted" style="margin-top:6px">' + esc(statusText(s.status)) + '</div><code>' + esc(s.url) + '</code></div>';
+  }).join("");
+}
+function saveSources(list, msg) { api("/api/sources", list, function () { toast(msg || t("saved")); setTimeout(load, 300); setTimeout(load, 15000); }); }
+function setSource(k, key, v) { var list = JSON.parse(JSON.stringify(S.sources)); list[k][key] = v; saveSources(list); }
+function removeSource(k) { if (!confirm(t("confirmRemove"))) return; var list = S.sources.slice(); list.splice(k, 1); saveSources(list); }
+function newSource() {
+  return { id: "", name: $("nsName").value.trim(), type: $("nsType").value, url: $("nsUrl").value.trim(),
+    pattern: $("nsPattern").value.trim(), mode: "approve", enabled: true, color: "#475569" };
+}
+function testSource() {
+  var s = newSource(); if (!s.url) { toast(t("needUrl")); return; }
+  $("nsResult").textContent = t("testing");
+  api("/api/sources/test", s, function (r) {
+    $("nsResult").innerHTML = r.count + " " + t("found") + (r.titles.length ? ': <br><span class="de-text">• ' + r.titles.map(esc).join("<br>• ") + '</span>' : "");
+  });
+}
+function addSource() {
+  var s = newSource(); if (!s.name || !s.url) { toast(t("needNameUrl")); return; }
+  saveSources(S.sources.concat([s]), t("sourceAdded"));
+  $("nsName").value = $("nsUrl").value = $("nsPattern").value = ""; $("nsResult").textContent = "";
+}
+
+// ---------------------------------------------------------------- Einstellungen
+// Languages every slide is repeated in, in this order; stored as "ar,en" in s_secondLang.
+var SLIDE_LANGS = ["ar", "en", "sq", "tr", "ru", "uk", "pl"];
+var LANG_KEYS = { ar: "langAr", en: "langEn", sq: "langSq", tr: "langTr", ru: "langRu", uk: "langUk", pl: "langPl" };
+function renderLangBoxes() {
+  var on = String($("s_secondLang").value || "").split(",");
+  $("langBoxes").innerHTML = SLIDE_LANGS.map(function (l) {
+    return '<label class="switch"><input type="checkbox" value="' + l + '"' + (on.indexOf(l) >= 0 ? " checked" : "") +
+      ' onchange="syncLangs()"> ' + t(LANG_KEYS[l]) + '</label>';
+  }).join("");
+}
+function syncLangs() {
+  var picked = [];
+  Array.prototype.forEach.call(document.querySelectorAll("#langBoxes input"), function (b) { if (b.checked) picked.push(b.value); });
+  $("s_secondLang").value = picked.join(",");
+}
+// Practice data (settings, ads, sources) as a file; restore with install-firetv.ps1 <ip> -Restore <file>.
+function backup() {
+  api("/api/profile", undefined, function (p) {
+    var blob = new Blob([JSON.stringify(p, null, 1)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "praxis-tv-sicherung-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    toast(t("backupDone"));
+  });
+}
+function checkUpdate() { api("/api/update", {}, function () { toast(t("updateStarted")); setTimeout(load, 15000); }); }
+function uploadLogo() {
+  var f = $("logoFile").files[0]; if (!f) return;
+  var fd = new FormData(); fd.append("file", f, f.name);
+  toast(t("uploading"));
+  api("/api/upload", fd, function (r) { $("s_logo").value = r.url; $("logoPrev").src = r.url; toast(t("logoReady")); });
+}
+function resetLogo() { $("s_logo").value = ""; $("logoPrev").src = "/logo.png"; $("logoFile").value = ""; }
+var KEYS = ["praxisName", "subtitle", "logo", "brandColor", "musicEnabled", "musicVolume", "channel", "secondLang", "deeplKey", "ticker", "slideSeconds", "messageEvery", "perSource", "maxAgeDays", "showQr", "autostart", "ars", "areaFilter", "minSeverity", "extraLang", "pin", "sleepEnabled", "sleepAt", "wakeAt", "remoteKey"];
+var NUMS = ["musicVolume", "slideSeconds", "messageEvery", "perSource", "maxAgeDays"];
+var BOOLS = ["showQr", "autostart", "musicEnabled", "sleepEnabled"];
+function renderSettings() {
+  KEYS.forEach(function (k) { $("s_" + k).value = String(S.settings[k] == null ? "" : S.settings[k]); });
+  $("address").textContent = S.address;
+  $("logoPrev").src = S.settings.logo || "/logo.png";
+  renderLangBoxes();
+  $("volValue").textContent = (S.settings.musicVolume == null ? 25 : S.settings.musicVolume) + "%";
+  if (S.music) {
+    $("musicStatus").textContent = S.music.status;
+    $("musicList").innerHTML = (S.music.tracks || []).map(function (m) {
+      return '<li dir="ltr" style="text-align:start">' + esc(m.composer) + " – " + esc(m.title) +
+        (m.performer ? " (" + esc(m.performer) + ")" : "") + " · " + esc(m.license) + "</li>";
+    }).join("");
+  }
+  if (S.app) {
+    $("appVersion").textContent = "App " + S.app.version + " · Web " + S.app.web;
+    $("appUpdate").textContent = S.app.update;
+    $("adbHint").style.display = S.app.adb === "false" ? "block" : "none";
+  }
+}
+function saveSettings() {
+  var o = {};
+  KEYS.forEach(function (k) { var v = $("s_" + k).value.trim();
+    o[k] = NUMS.indexOf(k) >= 0 ? +v : BOOLS.indexOf(k) >= 0 ? v === "true" : v; });
+  api("/api/settings", o, function () {
+    if (o.pin !== PIN) { PIN = o.pin; try { localStorage.setItem("praxisPin", PIN); } catch (e) {} }
+    toast(t("saved")); load();
+  });
+}
+
+setLang(LANG);
+if (PIN) load(); else showLogin();
+</script>
+</body>
+</html>
