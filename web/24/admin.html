@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Praxis TV – Steuerung</title>
 <style>
-  :root { --bg: #f1f5f9; --card: #fff; --ink: #3a3736; --muted: #64748b; --line: #e2e8f0;
-    --accent: #01aba8; --accent-ink: #fff; --warn: #b91c1c; --gold: #b45309; }
+  :root { --bg: #f4f4f4; --card: #fff; --ink: #1a1a1a; --muted: #6b6b6b; --line: #e0e0e0;
+    --accent: #1a1a1a; --accent-ink: #fff; --warn: #b91c1c; --gold: #444; }
   /* Cairo (Arabic): bundled in the app, see fonts/LICENSE-Cairo.txt. Latin letters fall back to Roboto. */
   @font-face { font-family: "Cairo"; font-weight: 400; src: url(/fonts/cairo-400.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
   @font-face { font-family: "Cairo"; font-weight: 600; src: url(/fonts/cairo-600.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
@@ -17,13 +17,13 @@
   html[dir=rtl] body { font-size: 16px; font-family: "Cairo", "Segoe UI", Roboto, Tahoma, Arial, sans-serif; }
   html[dir=rtl] .btn, html[dir=rtl] nav button, html[dir=rtl] input, html[dir=rtl] textarea, html[dir=rtl] select { font-family: inherit; }
   [dir=rtl] .ltr, [dir=rtl] code { text-align: left; }
-  header { background: #013a39; color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  header { background: #1a1a1a; color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   header h1 { font-size: 18px; margin: 0; }
   header .sub { font-size: 13px; opacity: .7; }
   header .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .lang { display: inline-flex; border: 1px solid rgba(255,255,255,.35); border-radius: 8px; overflow: hidden; }
   .lang button { border: 0; background: transparent; color: #fff; padding: 7px 11px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
-  .lang button.on { background: #80d5d3; color: #013a39; }
+  .lang button.on { background: #e5e5e5; color: #1a1a1a; }
   #login .lang { border-color: var(--line); margin-bottom: 8px; }
   #login .lang button { color: var(--ink); }
   nav { display: flex; gap: 4px; padding: 0 16px; background: #fff; border-bottom: 1px solid var(--line); overflow-x: auto; }
@@ -40,34 +40,34 @@
   .chip { display: inline-block; color: #fff; border-radius: 99px; padding: 2px 9px; font-size: 12px; font-weight: 700; }
   .badge { display: inline-block; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 700; }
   .b-on { background: #dcfce7; color: #166534; } .b-wait { background: #fef3c7; color: #92400e; }
-  .b-off { background: #f1f5f9; color: #64748b; } .b-pin { background: #dbeafe; color: #1e40af; }
+  .b-off { background: #f1f1f1; color: #6b6b6b; } .b-pin { background: #e5e5e5; color: #333; }
   .item h3 { margin: 6px 0 4px; font-size: 16px; }
-  .item p { margin: 0 0 8px; color: #334155; font-size: 14px; }
+  .item p { margin: 0 0 8px; color: #333; font-size: 14px; }
   .item h3, .item p, .de-text { direction: ltr; text-align: left; unicode-bidi: plaintext; }
   .term { unicode-bidi: -webkit-isolate; unicode-bidi: isolate; }
   .item .tr { color: var(--accent); font-weight: 600; margin: 0 0 6px; }
   .item.warning { border-inline-start: 5px solid var(--warn); }
   .btn { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 8px; padding: 7px 12px;
     font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn:hover { border-color: #94a3b8; }
+  .btn:hover { border-color: #888; }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .btn.danger { color: var(--warn); }
   .btn.ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
   .filters { margin-bottom: 12px; }
-  .filters .btn.on { background: #0f172a; color: #fff; border-color: #0f172a; }
-  label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin: 10px 0 4px; }
+  .filters .btn.on { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  label { display: block; font-size: 13px; font-weight: 600; color: #333; margin: 10px 0 4px; }
   input[type=text], input[type=number], input[type=date], input[type=password], textarea, select {
-    width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; background: #fff; color: var(--ink); }
+    width: 100%; padding: 9px 10px; border: 1px solid #c8c8c8; border-radius: 8px; font: inherit; background: #fff; color: var(--ink); }
   textarea { min-height: 110px; resize: vertical; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
   .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 14px; }
   @media (max-width: 640px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
-  .thumb { width: 120px; height: 68px; object-fit: cover; border-radius: 6px; background: #e2e8f0; }
-  .hint { background: #ecfeff; border: 1px solid #a5f3fc; color: #155e75; border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
+  .thumb { width: 120px; height: 68px; object-fit: cover; border-radius: 6px; background: #e5e5e5; }
+  .hint { background: #f3f3f3; border: 1px solid #d4d4d4; color: #333; border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
   .hint a { color: inherit; font-weight: 700; }
   #login { max-width: 360px; margin: 12vh auto; text-align: center; }
   #login input { font-size: 28px; text-align: center; letter-spacing: .3em; margin: 12px 0; direction: ltr; }
-  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #0f172a; color: #fff;
+  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #1a1a1a; color: #fff;
     padding: 10px 16px; border-radius: 10px; display: none; z-index: 9; }
   .empty { text-align: center; color: var(--muted); padding: 30px; }
   .switch { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; margin: 0; }
@@ -76,10 +76,10 @@
   /* help */
   #helpBody h2 { font-size: 20px; margin: 4px 0 10px; }
   #helpBody h3 { font-size: 17px; margin: 0 0 8px; color: var(--accent); }
-  #helpBody p, #helpBody li { font-size: 15px; color: #1e293b; }
+  #helpBody p, #helpBody li { font-size: 15px; color: #222; }
   #helpBody ul, #helpBody ol { margin: 6px 0; padding-inline-start: 22px; }
   #helpBody li { margin: 4px 0; }
-  #helpBody .k { display: inline-block; background: #f1f5f9; border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; font-weight: 700; }
+  #helpBody .k { display: inline-block; background: #f1f1f1; border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; font-weight: 700; }
   .toc { display: flex; flex-wrap: wrap; gap: 6px; }
   .toc a { background: #fff; border: 1px solid var(--line); border-radius: 99px; padding: 4px 10px; font-size: 13px; color: var(--ink); text-decoration: none; }
 </style>
@@ -164,7 +164,7 @@
             <button class="btn danger" onclick="resetLogo()" data-t="logoReset"></button></div>
             <input id="s_logo" type="hidden"><div class="muted" data-t="logoHint"></div></div>
           <div><label data-t="lBrand"></label><div class="row">
-            <input id="s_brandColor" type="color" style="width:76px;height:44px;padding:2px;border:1px solid #cbd5e1;border-radius:8px">
+            <input id="s_brandColor" type="color" style="width:76px;height:44px;padding:2px;border:1px solid #c8c8c8;border-radius:8px">
             <button class="btn" onclick="$('s_brandColor').value='#01aba8'" data-t="brandReset"></button></div>
             <div class="muted" data-t="brandHint"></div></div>
         </div>
@@ -654,7 +654,7 @@ function editMessage(k) {
   e.innerHTML = '<h3 style="margin-top:0">' + t(k >= 0 ? "editTitle" : "newTitle") + '</h3>' +
     '<label>' + t("mTitle") + '</label><input id="m_title" type="text" dir="auto" maxlength="90" value="' + esc(m.title) + '">' +
     '<label>' + t("mText") + '</label><textarea id="m_text" dir="auto" maxlength="600">' + esc(m.text) + '</textarea>' +
-    '<div class="card" style="background:#f8fafc;margin-top:12px"><div class="row"><b class="grow">' + t("mArTitle") + '</b>' +
+    '<div class="card" style="background:#f8f8f8;margin-top:12px"><div class="row"><b class="grow">' + t("mArTitle") + '</b>' +
     '<button class="btn" onclick="autoTranslate()">' + t("mAuto") + '</button></div>' +
     '<label>' + t("mTitle") + '</label><input id="m_titleAr" type="text" dir="auto" maxlength="120" value="' + esc(m.titleAr || "") + '">' +
     '<label>' + t("mText") + '</label><textarea id="m_textAr" dir="auto" maxlength="800">' + esc(m.textAr || "") + '</textarea>' +
@@ -727,7 +727,7 @@ function setSource(k, key, v) { var list = JSON.parse(JSON.stringify(S.sources))
 function removeSource(k) { if (!confirm(t("confirmRemove"))) return; var list = S.sources.slice(); list.splice(k, 1); saveSources(list); }
 function newSource() {
   return { id: "", name: $("nsName").value.trim(), type: $("nsType").value, url: $("nsUrl").value.trim(),
-    pattern: $("nsPattern").value.trim(), mode: "approve", enabled: true, color: "#475569" };
+    pattern: $("nsPattern").value.trim(), mode: "approve", enabled: true, color: "#555555" };
 }
 function testSource() {
   var s = newSource(); if (!s.url) { toast(t("needUrl")); return; }
