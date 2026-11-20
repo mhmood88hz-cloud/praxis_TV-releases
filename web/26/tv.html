@@ -377,6 +377,26 @@ function fit(c) {
   }
 }
 
+// Preview for the status page ("show me this announcement"): puts one slide on top of the running show, without
+// touching the timer or the report of what is showing. Returns true when the slide exists in the playlist.
+function previewSlide(id) {
+  clearPreview();
+  var s = null;
+  for (var i = 0; i < slides.length; i++) if (slides[i].id === id) { s = slides[i]; break; }
+  if (!s) return false;
+  var el = render(s);
+  el.id = "previewCard";
+  el.style.zIndex = "30"; el.style.transition = "none"; el.style.opacity = "1"; el.style.transform = "none";
+  el.className += " on";
+  $("stage").appendChild(el);
+  fit(el.querySelector(".content"));
+  return true;
+}
+function clearPreview() {
+  var p = $("previewCard");
+  if (p && p.parentNode) p.parentNode.removeChild(p);
+}
+
 function next() { show(index + 1); }
 function step(d) { paused = false; show(index + d); }
 function togglePause() {
